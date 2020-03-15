@@ -2,7 +2,10 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const weekSchema = new Schema({
-  weekNo: Number,
+  weekNo: {
+    type: Number,
+    required: [true, 'All weeks must have a week number.'],
+  },
   weekName: String,
   season: {
     type: Schema.Types.ObjectId,
