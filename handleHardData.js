@@ -4,10 +4,10 @@
  */
 
 const fcs = require('./old_data/fcs.json');
-const Level = require('./models/level.model');
-const Conference = require('./models/conference.model');
-const Division = require('./models/division.model');
-const Team = require('./models/team.model');
+const Level = require('./models/teams/level.model');
+const Conference = require('./models/teams/conference.model');
+const Division = require('./models/teams/division.model');
+const Team = require('./models/teams/team.model');
 
 const levelsObj = [{
   name: 'Football Championship Subdivision',
