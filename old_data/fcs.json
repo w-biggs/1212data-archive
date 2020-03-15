@@ -1,0 +1,1375 @@
+{
+  "teams": [
+    {
+      "name": "Stony Brook",
+      "abbr": "SBU",
+      "conf": "America East",
+      "fullConf": "America East",
+      "div": "Tri-State",
+      "color": "#990000"
+    },
+    {
+      "name": "Northern Iowa",
+      "abbr": "UNI",
+      "conf": "MVC",
+      "fullConf": "Missouri Valley Conference",
+      "div": "Prairie",
+      "color": "#4B116F"
+    },
+    {
+      "name": "Cal Poly",
+      "abbr": "CPSU",
+      "conf": "Big Sky",
+      "fullConf": "Big Sky",
+      "div": "South",
+      "color": "#003831"
+    },
+    {
+      "name": "Mississippi Valley State",
+      "short": "Miss. Valley St.",
+      "abbr": "MVSU",
+      "conf": "DIC",
+      "fullConf": "Delta Intercollegiate",
+      "div": "Mississippi Valley",
+      "color": "#046A38"
+    },
+    {
+      "name": "Montana State",
+      "abbr": "MTSU",
+      "conf": "Big Sky",
+      "fullConf": "Big Sky",
+      "div": "North",
+      "color": "#00205B"
+    },
+    {
+      "name": "Jacksonville State",
+      "short": "Jacksonville St.",
+      "abbr": "JSU",
+      "conf": "Atlantic Sun",
+      "fullConf": "Atlantic Sun",
+      "div": "North",
+      "color": "#CC0000"
+    },
+    {
+      "name": "San Diego",
+      "abbr": "USND",
+      "conf": "Big Sky",
+      "fullConf": "Big Sky",
+      "div": "South",
+      "color": "#003B70"
+    },
+    {
+      "name": "Montana",
+      "abbr": "UM",
+      "conf": "Big Sky",
+      "fullConf": "Big Sky",
+      "div": "North",
+      "color": "#660033"
+    },
+    {
+      "name": "VMI",
+      "abbr": "VMI",
+      "conf": "Colonial",
+      "fullConf": "Colonial",
+      "div": "South",
+      "color": "#AE122A"
+    },
+    {
+      "name": "Bethune-Cookman",
+      "short": "Bethune-Cook.",
+      "abbr": "B-CU",
+      "conf": "Atlantic Sun",
+      "fullConf": "Atlantic Sun",
+      "div": "South",
+      "color": "#6F263D"
+    },
+    {
+      "name": "Princeton",
+      "abbr": "PRIN",
+      "conf": "Ivy League",
+      "fullConf": "Ivy League",
+      "div": "N/A",
+      "color": "#FF671F"
+    },
+    {
+      "name": "Monmouth",
+      "abbr": "MON",
+      "conf": "Mid-Atlantic",
+      "fullConf": "Mid-Atlantic",
+      "div": "Atlantic",
+      "color": "#041E42"
+    },
+    {
+      "name": "Northern Colorado",
+      "short": "N. Colorado",
+      "abbr": "UNCO",
+      "conf": "MVC",
+      "fullConf": "Missouri Valley Conference",
+      "div": "Prairie",
+      "color": "#013C65"
+    },
+    {
+      "name": "Lehigh",
+      "abbr": "LEHI",
+      "conf": "Mid-Atlantic",
+      "fullConf": "Mid-Atlantic",
+      "div": "Adirondack",
+      "color": "#4B2913"
+    },
+    {
+      "name": "Alabama A&M",
+      "abbr": "AAMU",
+      "conf": "Atlantic Sun",
+      "fullConf": "Atlantic Sun",
+      "div": "North",
+      "color": "#660000"
+    },
+    {
+      "name": "Nicholls State",
+      "abbr": "NIC",
+      "conf": "Southland",
+      "fullConf": "Southland",
+      "div": "Louisiana",
+      "color": "#C41230"
+    },
+    {
+      "name": "Dixie State",
+      "abbr": "DSU",
+      "conf": "Big Sky",
+      "fullConf": "Big Sky",
+      "div": "South",
+      "color": "#C21B32"
+    },
+    {
+      "name": "Holy Cross",
+      "abbr": "CHC",
+      "conf": "America East",
+      "fullConf": "America East",
+      "div": "New England",
+      "color": "#602D89"
+    },
+    {
+      "name": "Penn",
+      "abbr": "PENN",
+      "conf": "Ivy League",
+      "fullConf": "Ivy League",
+      "div": "N/A",
+      "color": "#990000"
+    },
+    {
+      "name": "Kennesaw State",
+      "abbr": "KSU",
+      "conf": "Atlantic Sun",
+      "fullConf": "Atlantic Sun",
+      "div": "South",
+      "color": "#0B1315"
+    },
+    {
+      "name": "Marist",
+      "abbr": "MAR",
+      "conf": "Mid-Atlantic",
+      "fullConf": "Mid-Atlantic",
+      "div": "Adirondack",
+      "color": "#C8102E"
+    },
+    {
+      "name": "Texas Southern",
+      "abbr": "TSU",
+      "conf": "Southland",
+      "fullConf": "Southland",
+      "div": "Texas",
+      "color": "#6F263D"
+    },
+    {
+      "name": "Incarnate Word",
+      "abbr": "UIW",
+      "conf": "Southland",
+      "fullConf": "Southland",
+      "div": "Texas",
+      "color": "#CB333B"
+    },
+    {
+      "name": "North Carolina Central",
+      "short": "NC Central",
+      "abbr": "NCCU",
+      "conf": "CFC",
+      "fullConf": "Carolina Football Conference",
+      "div": "North",
+      "color": "#862633"
+    },
+    {
+      "name": "Colgate",
+      "abbr": "COLG",
+      "conf": "Mid-Atlantic",
+      "fullConf": "Mid-Atlantic",
+      "div": "Adirondack",
+      "color": "#862633"
+    },
+    {
+      "name": "Wofford",
+      "abbr": "WOFF",
+      "conf": "CFC",
+      "fullConf": "Carolina Football Conference",
+      "div": "South",
+      "color": "#886E4C"
+    },
+    {
+      "name": "Southern Illinois",
+      "abbr": "SIU",
+      "conf": "DIC",
+      "fullConf": "Delta Intercollegiate",
+      "div": "Mississippi Valley",
+      "color": "#720000"
+    },
+    {
+      "name": "Villanova",
+      "abbr": "VILL",
+      "conf": "Colonial",
+      "fullConf": "Colonial",
+      "div": "North",
+      "color": "#002664"
+    },
+    {
+      "name": "Sacramento State",
+      "short": "Sac State",
+      "abbr": "CSUS",
+      "conf": "Big Sky",
+      "fullConf": "Big Sky",
+      "div": "South",
+      "color": "#043927"
+    },
+    {
+      "name": "Eastern Illinois",
+      "abbr": "EIU",
+      "conf": "MVC",
+      "fullConf": "Missouri Valley Conference",
+      "div": "Metro",
+      "color": "#003399"
+    },
+    {
+      "name": "Murray State",
+      "abbr": "MURR",
+      "conf": "DIC",
+      "fullConf": "Delta Intercollegiate",
+      "div": "Tennessee Valley",
+      "color": "#002144"
+    },
+    {
+      "name": "Prairie View A&M",
+      "short": "PVAMU",
+      "abbr": "PVAMU",
+      "conf": "Southland",
+      "fullConf": "Southland",
+      "div": "Texas",
+      "color": "#330066"
+    },
+    {
+      "name": "Dayton",
+      "abbr": "UD",
+      "conf": "MVC",
+      "fullConf": "Missouri Valley Conference",
+      "div": "Metro",
+      "color": "#CE1141"
+    },
+    {
+      "name": "Fordham",
+      "abbr": "FDHM",
+      "conf": "America East",
+      "fullConf": "America East",
+      "div": "Tri-State",
+      "color": "#95003A"
+    },
+    {
+      "name": "Drake",
+      "abbr": "DRKE",
+      "conf": "MVC",
+      "fullConf": "Missouri Valley Conference",
+      "div": "Prairie",
+      "color": "#003B73"
+    },
+    {
+      "name": "Southern Utah",
+      "abbr": "SUU",
+      "conf": "Big Sky",
+      "fullConf": "Big Sky",
+      "div": "South",
+      "color": "#C41425"
+    },
+    {
+      "name": "Maine",
+      "abbr": "UME",
+      "conf": "America East",
+      "fullConf": "America East",
+      "div": "New England",
+      "color": "#B0D7FF"
+    },
+    {
+      "name": "Campbell",
+      "abbr": "CAMP",
+      "conf": "Atlantic Sun",
+      "fullConf": "Atlantic Sun",
+      "div": "North",
+      "color": "#E87722"
+    },
+    {
+      "name": "Yale",
+      "abbr": "YALE",
+      "conf": "Ivy League",
+      "fullConf": "Ivy League",
+      "div": "N/A",
+      "color": "#00356b"
+    },
+    {
+      "name": "Mercer",
+      "abbr": "MERC",
+      "conf": "Atlantic Sun",
+      "fullConf": "Atlantic Sun",
+      "div": "South",
+      "color": "#CB5307"
+    },
+    {
+      "name": "Brown",
+      "abbr": "BRWN",
+      "conf": "Ivy League",
+      "fullConf": "Ivy League",
+      "div": "N/A",
+      "color": "#381C00"
+    },
+    {
+      "name": "Delaware",
+      "abbr": "UDEL",
+      "conf": "Colonial",
+      "fullConf": "Colonial",
+      "div": "South",
+      "color": "#00539F"
+    },
+    {
+      "name": "Davidson",
+      "abbr": "DAV",
+      "conf": "CFC",
+      "fullConf": "Carolina Football Conference",
+      "div": "North",
+      "color": "#BF0C26"
+    },
+    {
+      "name": "Duquesne",
+      "abbr": "DUQ",
+      "conf": "Colonial",
+      "fullConf": "Colonial",
+      "div": "North",
+      "color": "#D31245"
+    },
+    {
+      "name": "Charleston Southern",
+      "short": "CSU",
+      "abbr": "CSU",
+      "conf": "CFC",
+      "fullConf": "Carolina Football Conference",
+      "div": "South",
+      "color": "#002855"
+    },
+    {
+      "name": "Arkansas-Pine Bluff",
+      "short": "Ark.-Pine Bluff",
+      "abbr": "UAPB",
+      "conf": "DIC",
+      "fullConf": "Delta Intercollegiate",
+      "div": "Mississippi Valley",
+      "color": "#EEB310"
+    },
+    {
+      "name": "Stephen F. Austin",
+      "short": "SFA",
+      "abbr": "SFASU",
+      "conf": "Southland",
+      "fullConf": "Southland",
+      "div": "Texas",
+      "color": "#3F2A55"
+    },
+    {
+      "name": "Austin Peay",
+      "abbr": "APSU",
+      "conf": "DIC",
+      "fullConf": "Delta Intercollegiate",
+      "div": "Tennessee Valley",
+      "color": "#BA0C2F"
+    },
+    {
+      "name": "Youngstown State",
+      "short": "Youngstown St.",
+      "abbr": "YSU",
+      "conf": "Colonial",
+      "fullConf": "Colonial",
+      "div": "North",
+      "color": "#C8102E"
+    },
+    {
+      "name": "Wagner",
+      "abbr": "WAG",
+      "conf": "Mid-Atlantic",
+      "fullConf": "Mid-Atlantic",
+      "div": "Atlantic",
+      "color": "#004331"
+    },
+    {
+      "name": "Valparaiso",
+      "abbr": "VLPO",
+      "conf": "MVC",
+      "fullConf": "Missouri Valley Conference",
+      "div": "Metro",
+      "color": "#381E0E"
+    },
+    {
+      "name": "Western Illinois",
+      "abbr": "WIU",
+      "conf": "MVC",
+      "fullConf": "Missouri Valley Conference",
+      "div": "Metro",
+      "color": "#663399"
+    },
+    {
+      "name": "Butler",
+      "abbr": "BUT",
+      "conf": "MVC",
+      "fullConf": "Missouri Valley Conference",
+      "div": "Metro",
+      "color": "#13294B"
+    },
+    {
+      "name": "Merrimack",
+      "abbr": "MU",
+      "conf": "America East",
+      "fullConf": "America East",
+      "div": "New England",
+      "color": "#06345b"
+    },
+    {
+      "name": "Samford",
+      "abbr": "SAM",
+      "conf": "Atlantic Sun",
+      "fullConf": "Atlantic Sun",
+      "div": "North",
+      "color": "#C4161D"
+    },
+    {
+      "name": "Sam Houston State",
+      "short": "SHSU",
+      "abbr": "SHSU",
+      "conf": "Southland",
+      "fullConf": "Southland",
+      "div": "Texas",
+      "color": "#F78E1E"
+    },
+    {
+      "name": "Hampton",
+      "abbr": "HU",
+      "conf": "Mid-Atlantic",
+      "fullConf": "Mid-Atlantic",
+      "div": "Atlantic",
+      "color": "#265198"
+    },
+    {
+      "name": "Gardner-Webb",
+      "abbr": "GWU",
+      "conf": "CFC",
+      "fullConf": "Carolina Football Conference",
+      "div": "North",
+      "color": "#A6192E"
+    },
+    {
+      "name": "St. Francis",
+      "abbr": "SFU",
+      "conf": "Mid-Atlantic",
+      "fullConf": "Mid-Atlantic",
+      "div": "Adirondack",
+      "color": "#BD1F25"
+    },
+    {
+      "name": "Sacred Heart",
+      "abbr": "SHU",
+      "conf": "America East",
+      "fullConf": "America East",
+      "div": "Tri-State",
+      "color": "#CD1041"
+    },
+    {
+      "name": "Eastern Kentucky",
+      "short": "EKU",
+      "abbr": "EKU",
+      "conf": "DIC",
+      "fullConf": "Delta Intercollegiate",
+      "div": "Tennessee Valley",
+      "color": "#4C151E"
+    },
+    {
+      "name": "Dartmouth",
+      "abbr": "DART",
+      "conf": "Ivy League",
+      "fullConf": "Ivy League",
+      "div": "N/A",
+      "color": "#005F2F"
+    },
+    {
+      "name": "Indiana State",
+      "abbr": "INSU",
+      "conf": "MVC",
+      "fullConf": "Missouri Valley Conference",
+      "div": "Metro",
+      "color": "#0142BC"
+    },
+    {
+      "name": "Jackson State",
+      "abbr": "JSUMS",
+      "conf": "DIC",
+      "fullConf": "Delta Intercollegiate",
+      "div": "Mississippi Valley",
+      "color": "#002147"
+    },
+    {
+      "name": "UT Martin",
+      "abbr": "UTM",
+      "conf": "DIC",
+      "fullConf": "Delta Intercollegiate",
+      "div": "Tennessee Valley",
+      "color": "#002649"
+    },
+    {
+      "name": "The Citadel",
+      "abbr": "TC",
+      "conf": "CFC",
+      "fullConf": "Carolina Football Conference",
+      "div": "South",
+      "color": "#3975B7"
+    },
+    {
+      "name": "Portland State",
+      "abbr": "PDX",
+      "conf": "Big Sky",
+      "fullConf": "Big Sky",
+      "div": "North",
+      "color": "#154734"
+    },
+    {
+      "name": "Abilene Christian",
+      "abbr": "ACU",
+      "conf": "Southland",
+      "fullConf": "Southland",
+      "div": "Texas",
+      "color": "#4E2683"
+    },
+    {
+      "name": "Columbia",
+      "abbr": "COLU",
+      "conf": "Ivy League",
+      "fullConf": "Ivy League",
+      "div": "N/A",
+      "color": "#99CAEA"
+    },
+    {
+      "name": "Harvard",
+      "abbr": "HARV",
+      "conf": "Ivy League",
+      "fullConf": "Ivy League",
+      "div": "N/A",
+      "color": "#A51C30"
+    },
+    {
+      "name": "Towson",
+      "abbr": "TU",
+      "conf": "Colonial",
+      "fullConf": "Colonial",
+      "div": "North",
+      "color": "#FFCC00"
+    },
+    {
+      "name": "South Carolina State",
+      "short": "SC State",
+      "abbr": "SCSU",
+      "conf": "CFC",
+      "fullConf": "Carolina Football Conference",
+      "div": "South",
+      "color": "#841A2B"
+    },
+    {
+      "name": "Lamar",
+      "abbr": "LU",
+      "conf": "Southland",
+      "fullConf": "Southland",
+      "div": "Louisiana",
+      "color": "#E31937"
+    },
+    {
+      "name": "Florida A&M",
+      "abbr": "FAMU",
+      "conf": "Atlantic Sun",
+      "fullConf": "Atlantic Sun",
+      "div": "South",
+      "color": "#F4811F"
+    },
+    {
+      "name": "Tennessee Tech",
+      "abbr": "TTU",
+      "conf": "DIC",
+      "fullConf": "Delta Intercollegiate",
+      "div": "Tennessee Valley",
+      "color": "#4F2984"
+    },
+    {
+      "name": "Idaho State",
+      "abbr": "IDSU",
+      "conf": "Big Sky",
+      "fullConf": "Big Sky",
+      "div": "North",
+      "color": "#F47920"
+    },
+    {
+      "name": "Long Island",
+      "abbr": "LIU",
+      "conf": "America East",
+      "fullConf": "America East",
+      "div": "Tri-State",
+      "color": "#3d9be1"
+    },
+    {
+      "name": "Delaware State",
+      "abbr": "DESU",
+      "conf": "Colonial",
+      "fullConf": "Colonial",
+      "div": "South",
+      "color": "#EE3124"
+    },
+    {
+      "name": "Alcorn State",
+      "abbr": "ASU",
+      "conf": "DIC",
+      "fullConf": "Delta Intercollegiate",
+      "div": "Mississippi Valley",
+      "color": "#46166A"
+    },
+    {
+      "name": "North Alabama",
+      "abbr": "UNA",
+      "conf": "DIC",
+      "fullConf": "Delta Intercollegiate",
+      "div": "Tennessee Valley",
+      "color": "#46166B"
+    },
+    {
+      "name": "Southeast Missouri",
+      "short": "SE Missouri",
+      "abbr": "SEMO",
+      "conf": "DIC",
+      "fullConf": "Delta Intercollegiate",
+      "div": "Mississippi Valley",
+      "color": "#C8102E"
+    },
+    {
+      "name": "Stetson",
+      "abbr": "STET",
+      "conf": "Atlantic Sun",
+      "fullConf": "Atlantic Sun",
+      "div": "South",
+      "color": "#006747"
+    },
+    {
+      "name": "North Dakota State",
+      "short": "NDSU",
+      "abbr": "NDSU",
+      "conf": "MVC",
+      "fullConf": "Missouri Valley Conference",
+      "div": "Prairie",
+      "color": "#005643"
+    },
+    {
+      "name": "Tennessee State",
+      "abbr": "TNSU",
+      "conf": "DIC",
+      "fullConf": "Delta Intercollegiate",
+      "div": "Tennessee Valley",
+      "color": "#00539F"
+    },
+    {
+      "name": "McNeese State",
+      "abbr": "MCNSU",
+      "conf": "Southland",
+      "fullConf": "Southland",
+      "div": "Louisiana",
+      "color": "#00529B"
+    },
+    {
+      "name": "Central Arkansas",
+      "abbr": "UCA",
+      "conf": "DIC",
+      "fullConf": "Delta Intercollegiate",
+      "div": "Mississippi Valley",
+      "color": "#4F2D7F"
+    },
+    {
+      "name": "UC Davis",
+      "abbr": "UCD",
+      "conf": "Big Sky",
+      "fullConf": "Big Sky",
+      "div": "South",
+      "color": "#002855"
+    },
+    {
+      "name": "Northwestern State",
+      "short": "NSULA",
+      "abbr": "NSULA",
+      "conf": "Southland",
+      "fullConf": "Southland",
+      "div": "Louisiana",
+      "color": "#492F92"
+    },
+    {
+      "name": "Cornell",
+      "abbr": "CU",
+      "conf": "Ivy League",
+      "fullConf": "Ivy League",
+      "div": "N/A",
+      "color": "#B31B1B"
+    },
+    {
+      "name": "Southeastern Louisiana",
+      "short": "SE Louisiana",
+      "abbr": "SLU",
+      "conf": "Southland",
+      "fullConf": "Southland",
+      "div": "Louisiana",
+      "color": "#006341"
+    },
+    {
+      "name": "Chattanooga",
+      "abbr": "UTC",
+      "conf": "Atlantic Sun",
+      "fullConf": "Atlantic Sun",
+      "div": "North",
+      "color": "#00386B"
+    },
+    {
+      "name": "Jacksonville",
+      "abbr": "JU",
+      "conf": "Atlantic Sun",
+      "fullConf": "Atlantic Sun",
+      "div": "South",
+      "color": "#084E44"
+    },
+    {
+      "name": "Missouri State",
+      "abbr": "MOSU",
+      "conf": "DIC",
+      "fullConf": "Delta Intercollegiate",
+      "div": "Mississippi Valley",
+      "color": "#5E0009"
+    },
+    {
+      "name": "Idaho",
+      "abbr": "UOFI",
+      "conf": "Big Sky",
+      "fullConf": "Big Sky",
+      "div": "North",
+      "color": "#B3A369"
+    },
+    {
+      "name": "Morehead State",
+      "abbr": "MORE",
+      "conf": "DIC",
+      "fullConf": "Delta Intercollegiate",
+      "div": "Tennessee Valley",
+      "color": "#005EB8"
+    },
+    {
+      "name": "Robert Morris",
+      "abbr": "RMU",
+      "conf": "Colonial",
+      "fullConf": "Colonial",
+      "div": "North",
+      "color": "#14234B"
+    },
+    {
+      "name": "South Dakota State",
+      "short": "SDSU",
+      "abbr": "SDSU",
+      "conf": "MVC",
+      "fullConf": "Missouri Valley Conference",
+      "div": "Prairie",
+      "color": "#0032A0"
+    },
+    {
+      "name": "Grambling State",
+      "abbr": "GSU",
+      "conf": "Southland",
+      "fullConf": "Southland",
+      "div": "Louisiana",
+      "color": "#ECAA00"
+    },
+    {
+      "name": "Southern",
+      "abbr": "SUBR",
+      "conf": "Southland",
+      "fullConf": "Southland",
+      "div": "Louisiana",
+      "color": "#69B3E7"
+    },
+    {
+      "name": "New Hampshire",
+      "abbr": "UNH",
+      "conf": "America East",
+      "fullConf": "America East",
+      "div": "New England",
+      "color": "#001D52"
+    },
+    {
+      "name": "Furman",
+      "abbr": "FURM",
+      "conf": "CFC",
+      "fullConf": "Carolina Football Conference",
+      "div": "South",
+      "color": "#582C83"
+    },
+    {
+      "name": "Houston Baptist",
+      "abbr": "HBU",
+      "conf": "Southland",
+      "fullConf": "Southland",
+      "div": "Texas",
+      "color": "#00529C"
+    },
+    {
+      "name": "Illinois State",
+      "abbr": "ILSU",
+      "conf": "MVC",
+      "fullConf": "Missouri Valley Conference",
+      "div": "Metro",
+      "color": "#CE1126"
+    },
+    {
+      "name": "James Madison",
+      "abbr": "JMU",
+      "conf": "Colonial",
+      "fullConf": "Colonial",
+      "div": "South",
+      "color": "#450084"
+    },
+    {
+      "name": "Northern Arizona",
+      "abbr": "NAU",
+      "conf": "Big Sky",
+      "fullConf": "Big Sky",
+      "div": "South",
+      "color": "#003466"
+    },
+    {
+      "name": "Howard",
+      "abbr": "HOW",
+      "conf": "Mid-Atlantic",
+      "fullConf": "Mid-Atlantic",
+      "div": "Atlantic",
+      "color": "#003A63"
+    },
+    {
+      "name": "North Carolina A&T",
+      "short": "NCAT",
+      "abbr": "NCAT",
+      "conf": "CFC",
+      "fullConf": "Carolina Football Conference",
+      "div": "North",
+      "color": "#004684"
+    },
+    {
+      "name": "Eastern Washington",
+      "short": "E. Washington",
+      "abbr": "EWU",
+      "conf": "Big Sky",
+      "fullConf": "Big Sky",
+      "div": "North",
+      "color": "#A10022"
+    },
+    {
+      "name": "Morgan State",
+      "abbr": "MSU",
+      "conf": "Colonial",
+      "fullConf": "Colonial",
+      "div": "North",
+      "color": "#002D74"
+    },
+    {
+      "name": "Presbyterian",
+      "abbr": "PC",
+      "conf": "CFC",
+      "fullConf": "Carolina Football Conference",
+      "div": "South",
+      "color": "#0060A9"
+    },
+    {
+      "name": "Bucknell",
+      "abbr": "BCK",
+      "conf": "Mid-Atlantic",
+      "fullConf": "Mid-Atlantic",
+      "div": "Adirondack",
+      "color": "#EF5B0C"
+    },
+    {
+      "name": "South Dakota",
+      "abbr": "USD",
+      "conf": "MVC",
+      "fullConf": "Missouri Valley Conference",
+      "div": "Prairie",
+      "color": "#AD0000"
+    },
+    {
+      "name": "North Dakota",
+      "abbr": "UND",
+      "conf": "MVC",
+      "fullConf": "Missouri Valley Conference",
+      "div": "Prairie",
+      "color": "#009A44"
+    },
+    {
+      "name": "William & Mary",
+      "abbr": "WM",
+      "conf": "Colonial",
+      "fullConf": "Colonial",
+      "div": "South",
+      "color": "#115740"
+    },
+    {
+      "name": "East Tennessee State",
+      "short": "ETSU",
+      "abbr": "ETSU",
+      "conf": "Atlantic Sun",
+      "fullConf": "Atlantic Sun",
+      "div": "North",
+      "color": "#041E42"
+    },
+    {
+      "name": "Bryant",
+      "abbr": "BRY",
+      "conf": "America East",
+      "fullConf": "America East",
+      "div": "New England",
+      "color": "#231F20"
+    },
+    {
+      "name": "Weber State",
+      "abbr": "WESU",
+      "conf": "Big Sky",
+      "fullConf": "Big Sky",
+      "div": "North",
+      "color": "#4B2682"
+    },
+    {
+      "name": "Rhode Island",
+      "abbr": "URI",
+      "conf": "America East",
+      "fullConf": "America East",
+      "div": "New England",
+      "color": "#002147"
+    },
+    {
+      "name": "Georgetown",
+      "abbr": "GTU",
+      "conf": "Mid-Atlantic",
+      "fullConf": "Mid-Atlantic",
+      "div": "Atlantic",
+      "color": "#00205C"
+    },
+    {
+      "name": "Richmond",
+      "abbr": "UR",
+      "conf": "Colonial",
+      "fullConf": "Colonial",
+      "div": "South",
+      "color": "#C32032"
+    },
+    {
+      "name": "Savannah State",
+      "abbr": "SSU",
+      "conf": "Atlantic Sun",
+      "fullConf": "Atlantic Sun",
+      "div": "North",
+      "color": "#F24D17"
+    },
+    {
+      "name": "Alabama State",
+      "abbr": "ALASU",
+      "conf": "Atlantic Sun",
+      "fullConf": "Atlantic Sun",
+      "div": "South",
+      "color": "#C99700"
+    },
+    {
+      "name": "Albany",
+      "abbr": "UA",
+      "conf": "America East",
+      "fullConf": "America East",
+      "div": "Tri-State",
+      "color": "#46166B"
+    },
+    {
+      "name": "Elon",
+      "abbr": "ELON",
+      "conf": "CFC",
+      "fullConf": "Carolina Football Conference",
+      "div": "North",
+      "color": "#73000A"
+    },
+    {
+      "name": "Norfolk State",
+      "abbr": "NSU",
+      "conf": "Mid-Atlantic",
+      "fullConf": "Mid-Atlantic",
+      "div": "Atlantic",
+      "color": "#007A53"
+    },
+    {
+      "name": "Central Connecticut",
+      "short": "Central CT",
+      "abbr": "CCSU",
+      "conf": "America East",
+      "fullConf": "America East",
+      "div": "Tri-State",
+      "color": "#1A4784"
+    },
+    {
+      "name": "Western Carolina",
+      "abbr": "WCU",
+      "conf": "CFC",
+      "fullConf": "Carolina Football Conference",
+      "div": "North",
+      "color": "#592C88"
+    },
+    {
+      "name": "Lafayette",
+      "abbr": "LAF",
+      "conf": "Mid-Atlantic",
+      "fullConf": "Mid-Atlantic",
+      "div": "Adirondack",
+      "color": "#910029"
+    }
+  ],
+  "seasons": [
+    {
+      "seasonNo": 1,
+      "weeks": [
+        {
+          "weekNo": -1,
+          "name": "Start of FCS Season 1",
+          "range": [
+            1500,
+            1500
+          ]
+        },
+        {
+          "weekNo": 0,
+          "name": false,
+          "range": [
+            1463.5294274130574,
+            1536.4705725869426
+          ]
+        },
+        {
+          "weekNo": 1,
+          "name": false,
+          "range": [
+            1443.05538111774,
+            1558.997174266957
+          ]
+        },
+        {
+          "weekNo": 2,
+          "name": false,
+          "range": [
+            1432.227727919878,
+            1566.4799318932205
+          ]
+        },
+        {
+          "weekNo": 3,
+          "name": false,
+          "range": [
+            1424.9800101565627,
+            1593.8643680482314
+          ]
+        },
+        {
+          "weekNo": 4,
+          "name": false,
+          "range": [
+            1424.7361029217143,
+            1616.0521100383544
+          ]
+        },
+        {
+          "weekNo": 5,
+          "name": false,
+          "range": [
+            1403.3812032217684,
+            1640.8395173297506
+          ]
+        },
+        {
+          "weekNo": 6,
+          "name": false,
+          "range": [
+            1384.2646728774546,
+            1658.7734556219543
+          ]
+        },
+        {
+          "weekNo": 7,
+          "name": false,
+          "range": [
+            1368.6285839458021,
+            1621.6866800042217
+          ]
+        },
+        {
+          "weekNo": 8,
+          "name": false,
+          "range": [
+            1361.5558496493277,
+            1635.0646867509868
+          ]
+        },
+        {
+          "weekNo": 9,
+          "name": false,
+          "range": [
+            1333.254792427322,
+            1638.399454554889
+          ]
+        },
+        {
+          "weekNo": 10,
+          "name": false,
+          "range": [
+            1320.4280134623516,
+            1674.124182197542
+          ]
+        },
+        {
+          "weekNo": 11,
+          "name": false,
+          "range": [
+            1315.7775909967454,
+            1660.5999654862671
+          ]
+        },
+        {
+          "weekNo": 12,
+          "name": false,
+          "range": [
+            1299.877726694136,
+            1675.0535858737758
+          ]
+        },
+        {
+          "weekNo": 13,
+          "name": false,
+          "range": [
+            1299.877726694136,
+            1674.191935808199
+          ]
+        },
+        {
+          "weekNo": 14,
+          "name": "Round 1",
+          "range": [
+            1299.877726694136,
+            1686.8129191393093
+          ]
+        },
+        {
+          "weekNo": 15,
+          "name": "Round 2",
+          "range": [
+            1299.877726694136,
+            1693.1234108048643
+          ]
+        },
+        {
+          "weekNo": 16,
+          "name": "Quarterfinals",
+          "range": [
+            1299.877726694136,
+            1717.417333998244
+          ]
+        },
+        {
+          "weekNo": 17,
+          "name": "Semifinals",
+          "range": [
+            1299.877726694136,
+            1734.828564491917
+          ]
+        },
+        {
+          "weekNo": 18,
+          "name": "Championship",
+          "range": [
+            1299.877726694136,
+            1731.8729369202642
+          ]
+        }
+      ]
+    },
+    {
+      "seasonNo": 2,
+      "weeks": [
+        {
+          "weekNo": 0,
+          "name": "Start of FCS Season 2",
+          "range": [
+            1366.585151129424,
+            1654.5819579468427
+          ]
+        },
+        {
+          "weekNo": 1,
+          "name": false,
+          "range": [
+            1391.9141253166147,
+            1671.2216602138967
+          ]
+        },
+        {
+          "weekNo": 2,
+          "name": false,
+          "range": [
+            1391.9141253166147,
+            1653.4590499881374
+          ]
+        },
+        {
+          "weekNo": 3,
+          "name": false,
+          "range": [
+            1385.4090434836335,
+            1659.378142352308
+          ]
+        },
+        {
+          "weekNo": 4,
+          "name": false,
+          "range": [
+            1382.9306430616311,
+            1657.1601447677845
+          ]
+        },
+        {
+          "weekNo": 5,
+          "name": false,
+          "range": [
+            1363.9886272503807,
+            1668.1533922932992
+          ]
+        },
+        {
+          "weekNo": 6,
+          "name": false,
+          "range": [
+            1354.2865870471069,
+            1682.8246557864368
+          ]
+        },
+        {
+          "weekNo": 7,
+          "name": false,
+          "range": [
+            1354.2865870471069,
+            1700.833259576401
+          ]
+        },
+        {
+          "weekNo": 8,
+          "name": false,
+          "range": [
+            1336.0081682425894,
+            1707.2373445215273
+          ]
+        },
+        {
+          "weekNo": 9,
+          "name": false,
+          "range": [
+            1334.7718825309132,
+            1692.792201226781
+          ]
+        },
+        {
+          "weekNo": 10,
+          "name": false,
+          "range": [
+            1342.9512167386317,
+            1697.9071155718395
+          ]
+        },
+        {
+          "weekNo": 11,
+          "name": false,
+          "range": [
+            1342.9512167386317,
+            1715.784183159686
+          ]
+        },
+        {
+          "weekNo": 12,
+          "name": false,
+          "range": [
+            1331.715725885666,
+            1724.291251451422
+          ]
+        },
+        {
+          "weekNo": 13,
+          "name": false,
+          "range": [
+            1331.715725885666,
+            1724.291251451422
+          ]
+        },
+        {
+          "weekNo": 14,
+          "name": false,
+          "range": [
+            1331.715725885666,
+            1724.291251451422
+          ]
+        },
+        {
+          "weekNo": 15,
+          "name": false,
+          "range": [
+            1331.715725885666,
+            1747.6707664239086
+          ]
+        },
+        {
+          "weekNo": 16,
+          "name": false,
+          "range": [
+            1331.715725885666,
+            1752.5922515936595
+          ]
+        },
+        {
+          "weekNo": 17,
+          "name": false,
+          "range": [
+            1331.715725885666,
+            1750.3957338917992
+          ]
+        },
+        {
+          "weekNo": 18,
+          "name": false,
+          "range": [
+            1331.715725885666,
+            1747.0378229802332
+          ]
+        }
+      ]
+    }
+  ]
+}

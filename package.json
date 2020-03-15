@@ -1,0 +1,12 @@
+{
+  "name": "1212data",
+  "version": "0.1",
+  "description": "1212 data & api",
+  "main": "index.js",
+  "author": "WB",
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "mongoose": "^5.9.4"
+  }
+}
