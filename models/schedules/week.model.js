@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
+
+const { Schema } = mongoose;
 
 const weekSchema = new Schema({
   weekNo: {
@@ -17,8 +18,6 @@ const weekSchema = new Schema({
   }],
 });
 
-weekSchema.methods.weekName = () => {
-  return this.weekName ? this.weekName : `Week ${this.weekNo}`;
-}
+weekSchema.methods.weekName = () => (this.weekName ? this.weekName : `Week ${this.weekNo}`);
 
 module.exports = mongoose.model('Week', weekSchema);

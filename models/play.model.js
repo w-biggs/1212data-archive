@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
+
+const { Schema } = mongoose;
 
 const playSchema = new Schema({
   game: {
@@ -28,13 +29,13 @@ const playSchema = new Schema({
   playType: {
     type: String,
     required: true,
-    enum: ['KNEEL', 'SPIKE', 'PAT', 'TWO_POINT', 'PUNT', 
+    enum: ['KNEEL', 'SPIKE', 'PAT', 'TWO_POINT', 'PUNT',
       'RUN', 'PASS', 'FIELD_GOAL'],
   }, // "Play.XXXX" in play list
   result: {
     type: String,
     required: true,
-    enum: ['GAIN', 'KICK', 'TOUCHDOWN', 'TOUCHBACK', 
+    enum: ['GAIN', 'KICK', 'TOUCHDOWN', 'TOUCHBACK',
       'SAFETY', 'INCOMPLETE', 'TURNOVER', 'KNEEL', 'SPIKE',
       'TWO_POINT', 'PAT', 'KICKOFF', 'TURNOVER_PAT',
       'TURNOVER_TOUCHDOWN', 'FIELD_GOAL', 'MISS'],

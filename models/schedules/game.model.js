@@ -1,10 +1,11 @@
 const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
+
+const { Schema } = mongoose;
 
 const gameSchema = new Schema({
   gameId: {
     type: String,
-    required: [true, 'All games must have an associated Game ID.']
+    required: [true, 'All games must have an associated Game ID.'],
   }, // Reddit thread ID for game
   gameLength: Number, // In-game length of game (in seconds)
   startTime_utc: Number, // Starting timestamp in UTC
@@ -47,6 +48,10 @@ const gameSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: 'Play',
   }],
+  live: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 module.exports = mongoose.model('Game', gameSchema);
