@@ -21,16 +21,17 @@ const playSchema = new Schema({
   },
   defense: {
     number: Number,
-    coach: {
+    coach: [{
       type: Schema.Types.ObjectId,
       ref: 'Coach',
-    },
+    }],
   },
   playType: {
     type: String,
     required: true,
     enum: ['KNEEL', 'SPIKE', 'PAT', 'TWO_POINT', 'PUNT',
-      'RUN', 'PASS', 'FIELD_GOAL'],
+      'RUN', 'PASS', 'FIELD_GOAL', 'KICKOFF_NORMAL',
+      'KICKOFF_SQUIB', 'KICKOFF_ONSIDE'],
   }, // "Play.XXXX" in play list
   result: {
     type: String,
@@ -40,6 +41,10 @@ const playSchema = new Schema({
       'TWO_POINT', 'PAT', 'KICKOFF', 'TURNOVER_PAT',
       'TURNOVER_TOUCHDOWN', 'FIELD_GOAL', 'MISS'],
   }, // Final "Result.XXXX" in play list
+  yards: {
+    type: Number,
+    required: true,
+  },
   down: {
     type: Number,
     min: 1,

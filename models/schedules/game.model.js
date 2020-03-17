@@ -7,9 +7,8 @@ const gameSchema = new Schema({
     type: String,
     required: [true, 'All games must have an associated Game ID.'],
   }, // Reddit thread ID for game
-  gameLength: Number, // In-game length of game (in seconds)
-  startTime_utc: Number, // Starting timestamp in UTC
-  endTime_utc: Number, // Ending timestamp in UTC
+  startTime: Number, // Starting timestamp
+  endTime: Number, // Ending timestamp
   homeTeam: {
     offense: {
       type: String,
