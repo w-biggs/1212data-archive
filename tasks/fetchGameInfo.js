@@ -16,20 +16,22 @@ const parseGameJson = function parseGameJson(gameJson, gameId) {
     /**
      * Benchmarked this - multiple small regexes is twice as fast.
      */
-    const teamInfoRegex = /Defense\n.*\n\[(.+)\].+\|(.+)\|(.+)\n\[(.+)\].+\|(.+)\|(.+)/gm;
+    const teamInfoRegex = /Defense\n.*\n\[(.+)\].+\|(\/u\/.+)\|(.+)\|(.+)\n\[(.+)\].+\|(\/u\/.+)\|(.+)\|(.+)/gm;
     const teamInfoMatch = teamInfoRegex.exec(postBody);
-    const [, awayTeamName, awayOffense, awayDefense,
-      homeTeamName, homeOffense, homeDefense] = teamInfoMatch;
+    const [, awayTeamName, awayCoach, awayOffense, awayDefense,
+      homeTeamName, homeCoach, homeOffense, homeDefense] = teamInfoMatch;
   
     const homeTeam = {
       offense: homeOffense,
       defense: homeDefense,
       team: homeTeamName,
+      coach: homeCoach.split(' and '),
     };
     const awayTeam = {
       offense: awayOffense,
       defense: awayDefense,
       team: awayTeamName,
+      coach: awayCoach.split(' and '),
     };
   
     const playsLinkRegex = /\[Plays\]\((.+)\)/gm;
@@ -83,11 +85,45 @@ const getCoachRef = function getCoachRefFromUsername(username) {
       .then((coach) => {
         if (!coach) {
           console.error(`Coach ${plainUsername} not found in database.`);
-          resolve('placeholder');
+          const newCoach = new Coach({ username: plainUsername });
+          newCoach.save()
+            .catch(reject)
+            .then(savedCoach => resolve(savedCoach._id));
         } else {
           resolve(coach._id);
         }
       });
+  });
+};
+
+const fillCoachRef = function fillCoachRef(coach, cachedCoaches) {
+  return new Promise((resolve, reject) => {
+    let coachRef = false;
+  
+    // Check cached coach names
+    for (let i = 0; i < cachedCoaches.length; i += 1) {
+      const cachedCoach = cachedCoaches[i];
+      if (coach === cachedCoach.name) {
+        coachRef = cachedCoach.ref;
+      }
+    }
+
+    if (coachRef !== false) {
+      resolve({
+        ref: coachRef,
+        push: false,
+      });
+    } else {
+      getCoachRef(coach)
+        .catch(reject)
+        .then((newRef) => {
+          console.log(`Got coach ref for ${coach}: ${newRef}`);
+          resolve({
+            ref: newRef,
+            push: true,
+          });
+        });
+    }
   });
 };
 
@@ -97,73 +133,36 @@ const getCoachRef = function getCoachRefFromUsername(username) {
  */
 const fillPlayRefs = async function fillPlayCoachRefs(plays) {
   const coaches = [];
+  const filledPlays = [];
   for (let i = 0; i < plays.length; i += 1) {
     console.log(`Doing play ${i}`);
-    // console.log(coaches);
-    const playPromises = [];
     const play = plays[i];
 
-    playPromises.push(
-      new Promise((resolve, reject) => {
-        let offCoachRef = false;
-        // Check cached coach names
-        for (let j = 0; j < coaches.length; j += 1) {
-          const coach = coaches[j];
-          if (coach.name === play.offense.coach) {
-            offCoachRef = coach.ref;
-          }
-        }
-        if (offCoachRef) {
-          play.offense.coach = offCoachRef;
-          resolve();
-        } else {
-          getCoachRef(play.offense.coach)
-            .catch(reject)
-            .then((coachRef) => {
-              console.log(`Got coach ref for ${play.offense.coach}: ${coachRef}`);
-              coaches.push({ name: play.offense.coach, ref: coachRef });
-              play.offense.coach = coachRef;
-              resolve();
-            });
-        }
-      }),
-    );
+    /**
+     * Offense coach
+     */
+    // eslint-disable-next-line no-await-in-loop
+    const offRef = await fillCoachRef(play.offense.coach, coaches);
+    if (offRef.push) {
+      coaches.push({ name: play.offense.coach, ref: offRef.ref });
+    }
+    play.offense.coach = offRef.ref;
 
-    // Check cached coach names
+    /**
+     * Defense coach(es)
+     */
     for (let j = 0; j < play.defense.coach.length; j += 1) {
-      playPromises.push(
-        new Promise((resolve, reject) => {
-          let defCoachRef = false;
-          for (let k = 0; k < coaches.length; k += 1) {
-            const coach = coaches[k];
-            if (coach.name === play.defense.coach[j]) {
-              defCoachRef = coach.ref;
-            }
-          }
-          if (defCoachRef) {
-            play.defense.coach[j] = defCoachRef;
-            resolve();
-          } else {
-            getCoachRef(play.defense.coach[j])
-              .catch(reject)
-              .then((coachRef) => {
-                console.log(`Got coach ref for ${play.defense.coach[j]}: ${coachRef}`);
-                coaches.push({ name: play.defense.coach[j], ref: coachRef });
-                play.defense.coach[j] = coachRef;
-                resolve();
-              });
-          }
-        }),
-      );
+      // eslint-disable-next-line no-await-in-loop
+      const defRef = await fillCoachRef(play.defense.coach[j], coaches);
+      if (defRef.push) {
+        coaches.push({ name: play.defense.coach[j], ref: defRef.ref });
+      }
+      play.defense.coach[j] = defRef.ref;
     }
 
-    // eslint-disable-next-line no-await-in-loop
-    await Promise.all(playPromises)
-      .catch((err) => {
-        throw new Error(err);
-      });
+    filledPlays.push(play);
   }
-  return plays;
+  return filledPlays;
 };
 
 /**
@@ -216,7 +215,12 @@ const fetchGameInfo = function fetchAndParseGameInfo(gameId) {
           .then((parsedGame) => {
             fillGameRefs(parsedGame)
               .catch(reject)
-              .then(resolve);
+              .then((result) => {
+                const gameObj = result;
+                delete gameObj.homeTeam.coach;
+                delete gameObj.awayTeam.coach;
+                resolve(gameObj);
+              });
           });
       });
   });

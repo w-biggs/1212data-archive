@@ -101,9 +101,8 @@ const parsePlayComment = function parsePlayComment(comment, homeTeam, awayTeam, 
   const offenseTeamMatch = offenseTeamRegex.exec(comment.body);
   const homeOffense = (offenseTeamMatch[1] === homeTeam.team);
 
-  const userRegex = /(\/u\/.+) \[\]/gm;
-  const userMatch = userRegex.exec(resultComment.body);
-  const defCoach = userMatch[1];
+  // .slice() to make copies
+  const defCoach = homeOffense ? awayTeam.coach.slice() : homeTeam.coach.slice();
 
   const numbersRegex = /Offense: ([0-9]+)\n+Defense: ([0-9]+)/gm;
   const numbersMatch = numbersRegex.exec(resultComment.body);
@@ -156,7 +155,7 @@ const parsePlayComment = function parsePlayComment(comment, homeTeam, awayTeam, 
       coach: offCoach,
     },
     defense: {
-      coach: defCoach.split(' and '),
+      coach: defCoach,
     },
     playType,
     result: gistMatch.result,
