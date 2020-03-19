@@ -91,7 +91,8 @@ const findMatchingGist = function findMatchingGist(
 /**
  * Get the play info from the comment
  * @param {Object} comment The comment to parse
- * @param {String} homeTeam The home team's name
+ * @param {Object} homeTeam The home team info
+ * @param {Object} awayTeam The away team info
  * @param {Object[]} gistPlays The list of plays from the gist
  */
 const parsePlayComment = function parsePlayComment(comment, homeTeam, awayTeam, gistPlays) {
@@ -145,8 +146,6 @@ const parsePlayComment = function parsePlayComment(comment, homeTeam, awayTeam, 
     location = parseInt(locationMatch[1], 10);
   }
 
-  const gistMatch = findMatchingGist(playType, offNum, defNum, location, homeOffense, gistPlays);
-
   const offCoach = `/u/${parentComment.author.name.toLowerCase()}`;
 
   const play = {
@@ -158,15 +157,17 @@ const parsePlayComment = function parsePlayComment(comment, homeTeam, awayTeam, 
       coach: defCoach,
     },
     playType,
-    result: gistMatch.result,
-    yards: gistMatch.yards,
-    down: gistMatch.down,
-    distance: gistMatch.distance,
-    yardLine: gistMatch.yardLine,
     quarter: parseInt(quarter, 10),
     clock,
     playLength,
   };
+
+  const gistMatch = findMatchingGist(playType, offNum, defNum, location, homeOffense, gistPlays);
+  play.result = gistMatch.result;
+  play.yards = gistMatch.yards;
+  play.down = gistMatch.down;
+  play.distance = gistMatch.distance;
+  play.yardLine = gistMatch.yardLine;
 
   if (offNum !== null && defNum !== null) {
     play.offense.number = parseInt(offNum, 10);

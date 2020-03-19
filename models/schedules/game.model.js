@@ -13,17 +13,61 @@ const gameSchema = new Schema({
     offense: {
       type: String,
       enum: ['Option', 'Pro', 'Spread', 'Air Raid'],
-      required: [true, 'All teams must have an offensive playbook.'],
     }, // Offensive playbook
     defense: {
       type: String,
       enum: ['3-4', '4-3', '5-2'],
-      required: [true, 'All teams must have a defensive playbook.'],
     }, // Defensive playbook
     team: {
       type: Schema.Types.ObjectId,
       ref: 'Team',
       required: [true, 'A team for homeTeam is required.'],
+    },
+    stats: {
+      passYds: {
+        type: Number,
+        default: 0,
+      },
+      rushYds: {
+        type: Number,
+        default: 0,
+      },
+      interceptions: {
+        type: Number,
+        default: 0,
+      },
+      fumbles: {
+        type: Number,
+        default: 0,
+      },
+      fieldGoals: {
+        attempts: {
+          type: Number,
+          default: 0,
+        },
+        makes: {
+          type: Number,
+          default: 0,
+        },
+      },
+      timeOfPossession: {
+        type: Number,
+        default: 0,
+      },
+      timeoutsRemaining: {
+        type: Number,
+        default: 3,
+      },
+      score: {
+        quarters: [{
+          type: Number,
+          default: 0,
+        }],
+        final: {
+          type: Number,
+          default: 0,
+        },
+      },
     },
   },
   awayTeam: {
@@ -41,6 +85,52 @@ const gameSchema = new Schema({
       type: Schema.Types.ObjectId,
       ref: 'Team',
       required: [true, 'A team for awayTeam is required.'],
+    },
+    stats: {
+      passYds: {
+        type: Number,
+        default: 0,
+      },
+      rushYds: {
+        type: Number,
+        default: 0,
+      },
+      interceptions: {
+        type: Number,
+        default: 0,
+      },
+      fumbles: {
+        type: Number,
+        default: 0,
+      },
+      fieldGoals: {
+        attempts: {
+          type: Number,
+          default: 0,
+        },
+        makes: {
+          type: Number,
+          default: 0,
+        },
+      },
+      timeOfPossession: {
+        type: Number,
+        default: 0,
+      },
+      timeoutsRemaining: {
+        type: Number,
+        default: 3,
+      },
+      score: {
+        quarters: [{
+          type: Number,
+          default: 0,
+        }],
+        final: {
+          type: Number,
+          default: 0,
+        },
+      },
     },
   },
   plays: [{

@@ -158,24 +158,23 @@ const fetchPlaysFromComments = function fetchPlaysFromComments(
 const fetchGamePlays = function fetchGamePlays(gistLink, gameId, reddit, homeTeam, awayTeam) {
   return new Promise((resolve, reject) => {
     if (!gistLink) {
-      // Fetch plays from comments
+      return resolve(null); // Not possible to get plays for these games.
     }
-
-    fetchGist(gistLink)
+    return fetchGist(gistLink)
       .catch(reject)
       .then((gistContent) => {
         const gistFormat = detectGistFormat(gistContent);
         if (gistFormat === 18) {
           const plays = parseGist(gistContent, gistFormat);
-          resolve(plays);
-        } else if (gistFormat === 5) {
+          return resolve(plays);
+        }
+        if (gistFormat === 5) {
           const gistPlays = parseGist(gistContent, gistFormat);
-          fetchPlaysFromComments(gameId, reddit, homeTeam, awayTeam, gistPlays)
+          return fetchPlaysFromComments(gameId, reddit, homeTeam, awayTeam, gistPlays)
             .catch(reject)
             .then(resolve);
-        } else {
-          reject(new Error(`Could not get plays for game ${gameId}`));
         }
+        return reject(new Error(`Could not get plays for game ${gameId}`));
       });
   });
 };
