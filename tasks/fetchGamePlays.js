@@ -138,7 +138,7 @@ const fetchPlaysFromComments = function fetchPlaysFromComments(
         for (let i = 0; i < comments.length; i += 1) {
           const comment = comments[i];
           // If is a play comment
-          if (comment.body.indexOf('has submitted') >= 0) {
+          if (comment.body.indexOf('has submitted') >= 0 && comment.author.name.toLowerCase() === 'nfcaaofficialrefbot') {
             plays.push(parsePlayComment(comment, homeTeam, awayTeam, gistPlays));
           }
         }

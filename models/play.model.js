@@ -71,8 +71,7 @@ const playSchema = new Schema({
   clock: {
     type: Number,
     min: 0,
-    max: 420,
-    required: true,
+    max: 420, // Not required because overtime
   }, // Current time left on the clock in seconds
   playLength: {
     type: Number,

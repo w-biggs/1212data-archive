@@ -18,9 +18,10 @@ const getCoachesFromComments = function getCoachesFromComments(gameJson) {
       const teamNameMatch = teamNameRegex.exec(comment.body);
       const teamName = teamNameMatch[1];
   
-      const coachRegex = /(\/u\/.+) reply/gm;
+      // Sometimes comments just end with a username, sometimes they have the whole 'reply' spiel.
+      const coachRegex = /^(\/u\/.+)$/m;
       const coachMatch = coachRegex.exec(comment.body);
-      const coaches = coachMatch[1].split(' and ');
+      const coaches = coachMatch[1].split(' reply')[0].split(' and ');
       
       let foundTeam = false;
       for (let j = 0; j < teamCoaches.length; j += 1) {
@@ -28,16 +29,33 @@ const getCoachesFromComments = function getCoachesFromComments(gameJson) {
         if (teamCoach.team === teamName) {
           foundTeam = true;
           for (let k = 0; k < coaches.length; k += 1) {
-            if (!teamCoach.coach.includes('coach')) {
-              teamCoach.coach.push(coaches[k]);
+            let foundCoach = false;
+            for (let l = 0; l < teamCoach.coaches.length; l += 1) {
+              if (teamCoach.coaches[l].name === coaches[k]) {
+                foundCoach = true;
+                teamCoach.coaches[l].plays += 1;
+              }
+            }
+            if (!foundCoach) {
+              teamCoach.coaches.push({
+                name: coaches[k],
+                plays: 1,
+              });
             }
           }
         }
       }
       if (!foundTeam) {
+        const coachArray = [];
+        for (let j = 0; j < coaches.length; j += 1) {
+          coachArray.push({
+            name: coaches[j],
+            plays: 1,
+          });
+        }
         teamCoaches.push({
           team: teamName,
-          coach: coaches,
+          coaches: coachArray,
         });
       }
     }
@@ -125,7 +143,7 @@ const parseGameJson = function parseGameJson(gameJson, gameId) {
       endTime: gameJson.edited,
       homeTeam: {
         team: '',
-        coach: [],
+        coaches: [],
         stats: {
           passYds: 0,
           rushYds: 0,
@@ -142,7 +160,7 @@ const parseGameJson = function parseGameJson(gameJson, gameId) {
       },
       awayTeam: {
         team: '',
-        coach: [],
+        coaches: [],
         stats: {
           passYds: 0,
           rushYds: 0,
@@ -164,29 +182,24 @@ const parseGameJson = function parseGameJson(gameJson, gameId) {
     /**
      * Benchmarked this - multiple small regexes is twice as fast.
      */
-    const teamInfoRegex = /Defense\n.*\n\[(.+)\].+\|(\/u\/.+)\|(.+)\|(.+)\n\[(.+)\].+\|(\/u\/.+)\|(.+)\|(.+)/gm;
+    const teamInfoRegex = /Defense\n.*\n\[(.+)\].+\|(.+)\|(.+)\n\[(.+)\].+\|(.+)\|(.+)/gm;
     const teamInfoMatch = teamInfoRegex.exec(postBody);
     if (teamInfoMatch) {
-      [, gameObj.awayTeam.team, gameObj.awayTeam.coach,
-        gameObj.awayTeam.offense, gameObj.awayTeam.defense,
-        gameObj.homeTeam.team, gameObj.homeTeam.coach,
-        gameObj.homeTeam.offense, gameObj.homeTeam.defense] = teamInfoMatch;
-
-      gameObj.homeTeam.coach = gameObj.homeTeam.coach.split(' and ');
-      gameObj.awayTeam.coach = gameObj.awayTeam.coach.split(' and ');
+      [, gameObj.awayTeam.team, gameObj.awayTeam.offense, gameObj.awayTeam.defense,
+        gameObj.homeTeam.team, gameObj.homeTeam.offense, gameObj.homeTeam.defense] = teamInfoMatch;
     } else {
       const oldTeamInfoRegex = /\[GAME THREAD\].+?\) (.+) @ .+?\) (.+)/;
       const oldTeamInfoMatch = oldTeamInfoRegex.exec(gameJson.title);
       [, gameObj.awayTeam.team, gameObj.homeTeam.team] = oldTeamInfoMatch;
+    }
 
-      const teamCoaches = getCoachesFromComments(gameJson);
-      for (let i = 0; i < teamCoaches.length; i += 1) {
-        const teamCoach = teamCoaches[i];
-        if (teamCoach.team === gameObj.awayTeam.team) {
-          gameObj.awayTeam.coach = teamCoach.coach;
-        } else if (teamCoach.team === gameObj.homeTeam.team) {
-          gameObj.homeTeam.coach = teamCoach.coach;
-        }
+    const teamCoaches = getCoachesFromComments(gameJson);
+    for (let i = 0; i < teamCoaches.length; i += 1) {
+      const teamCoach = teamCoaches[i];
+      if (teamCoach.team === gameObj.awayTeam.team) {
+        gameObj.awayTeam.coaches = teamCoach.coaches;
+      } else if (teamCoach.team === gameObj.homeTeam.team) {
+        gameObj.homeTeam.coaches = teamCoach.coaches;
       }
     }
   
@@ -250,76 +263,99 @@ const getCoachRef = function getCoachRefFromUsername(username) {
   });
 };
 
-const fillCoachRef = function fillCoachRef(coach, cachedCoaches) {
-  return new Promise((resolve, reject) => {
-    let coachRef = false;
-  
-    // Check cached coach names
-    for (let i = 0; i < cachedCoaches.length; i += 1) {
-      const cachedCoach = cachedCoaches[i];
-      if (coach === cachedCoach.name) {
-        coachRef = cachedCoach.ref;
-      }
-    }
-
-    if (coachRef !== false) {
-      resolve({
-        ref: coachRef,
-        push: false,
-      });
-    } else {
-      getCoachRef(coach)
-        .catch(reject)
-        .then((newRef) => {
-          console.log(`Got coach ref for ${coach}: ${newRef}`);
-          resolve({
-            ref: newRef,
-            push: true,
-          });
-        });
-    }
-  });
-};
-
 /**
  * Fill refs for plays.
- * @param {Array} plays The array of plays to fill refs for.
+ * @param {Object} gameObj The game to fill play refs for.
  */
-const fillPlayRefs = async function fillPlayCoachRefs(plays) {
-  if (plays) {
-    const coaches = [];
+const fillPlayRefs = function fillPlayCoachRefs(gameObj) {
+  const filledGameObj = gameObj;
+  const coaches = [];
+
+  for (let i = 0; i < gameObj.awayTeam.coaches.length; i += 1) {
+    coaches.push(gameObj.awayTeam.coaches[i]);
+  }
+
+  for (let i = 0; i < gameObj.homeTeam.coaches.length; i += 1) {
+    coaches.push(gameObj.homeTeam.coaches[i]);
+  }
+
+  if (gameObj.plays) {
     const filledPlays = [];
-    for (let i = 0; i < plays.length; i += 1) {
+    for (let i = 0; i < gameObj.plays.length; i += 1) {
       console.log(`Doing play ${i}`);
-      const play = plays[i];
+      const play = gameObj.plays[i];
   
       /**
        * Offense coach
        */
-      // eslint-disable-next-line no-await-in-loop
-      const offRef = await fillCoachRef(play.offense.coach, coaches);
-      if (offRef.push) {
-        coaches.push({ name: play.offense.coach, ref: offRef.ref });
+      let foundOffCoach = false;
+      for (let j = 0; j < coaches.length; j += 1) {
+        const coach = coaches[j];
+        if (coach.name === play.offense.coach) {
+          play.offense.coach = coach.coach;
+          foundOffCoach = true;
+        }
       }
-      play.offense.coach = offRef.ref;
+      if (!foundOffCoach) {
+        console.log(coaches);
+        throw new Error(`Play has coach not in gameObj - ${play.offense.coach}`);
+      }
   
       /**
        * Defense coach(es)
        */
       for (let j = 0; j < play.defense.coach.length; j += 1) {
-        // eslint-disable-next-line no-await-in-loop
-        const defRef = await fillCoachRef(play.defense.coach[j], coaches);
-        if (defRef.push) {
-          coaches.push({ name: play.defense.coach[j], ref: defRef.ref });
+        let foundDefCoach = false;
+        for (let k = 0; k < coaches.length; k += 1) {
+          const coach = coaches[k];
+          if (coach.name === play.defense.coach[j]) {
+            play.defense.coach[j] = coach.coach;
+            foundDefCoach = true;
+          }
         }
-        play.defense.coach[j] = defRef.ref;
+        if (!foundDefCoach) {
+          console.log(coaches);
+          throw new Error(`Play has coach not in gameObj - ${play.defense.coach[j]}`);
+        }
       }
   
       filledPlays.push(play);
     }
-    return filledPlays;
+
+    filledGameObj.plays = filledPlays;
   }
-  return null;
+
+  for (let i = 0; i < gameObj.awayTeam.coaches.length; i += 1) {
+    delete filledGameObj.awayTeam.coaches[i].name;
+  }
+
+  for (let i = 0; i < gameObj.homeTeam.coaches.length; i += 1) {
+    delete filledGameObj.homeTeam.coaches[i].name;
+  }
+
+  return filledGameObj;
+};
+
+/**
+ * Add object refs to teams' coaches
+ * @param {Array} coaches Array of coach names and play #s
+ */
+const fillCoachRefs = function fillCoachRefs(coaches) {
+  const coachPromises = [];
+  for (let i = 0; i < coaches.length; i += 1) {
+    const coach = coaches[i];
+    coachPromises.push(
+      new Promise((resolve, reject) => {
+        getCoachRef(coach.name)
+          .catch(reject)
+          .then((coachId) => {
+            coach.coach = coachId;
+            resolve(coach);
+          });
+      }),
+    );
+  }
+  return Promise.all(coachPromises);
 };
 
 /**
@@ -348,17 +384,25 @@ const fillGameRefs = function fillGameRefs(parsedGame) {
           });
       }),
       new Promise((subResolve, subReject) => {
-        fillPlayRefs(gameObj.plays)
+        fillCoachRefs(gameObj.awayTeam.coaches)
           .catch(subReject)
-          .then((plays) => {
-            gameObj.plays = plays;
+          .then((coaches) => {
+            gameObj.awayTeam.coaches = coaches;
+            subResolve();
+          });
+      }),
+      new Promise((subResolve, subReject) => {
+        fillCoachRefs(gameObj.homeTeam.coaches)
+          .catch(subReject)
+          .then((coaches) => {
+            gameObj.homeTeam.coaches = coaches;
             subResolve();
           });
       }),
     );
     Promise.all(promises)
       .catch(reject)
-      .then(() => resolve(gameObj));
+      .then(() => resolve(fillPlayRefs(gameObj)));
   });
 };
 
@@ -372,12 +416,7 @@ const fetchGameInfo = function fetchAndParseGameInfo(gameId) {
           .then((parsedGame) => {
             fillGameRefs(parsedGame)
               .catch(reject)
-              .then((result) => {
-                const gameObj = result;
-                delete gameObj.homeTeam.coach;
-                delete gameObj.awayTeam.coach;
-                resolve(gameObj);
-              });
+              .then(resolve);
           });
       });
   });

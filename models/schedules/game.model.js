@@ -23,6 +23,13 @@ const gameSchema = new Schema({
       ref: 'Team',
       required: [true, 'A team for homeTeam is required.'],
     },
+    coaches: [{
+      coach: {
+        type: Schema.Types.ObjectId,
+        ref: 'Coach',
+      },
+      plays: Number,
+    }],
     stats: {
       passYds: {
         type: Number,
@@ -86,6 +93,13 @@ const gameSchema = new Schema({
       ref: 'Team',
       required: [true, 'A team for awayTeam is required.'],
     },
+    coaches: [{
+      coach: {
+        type: Schema.Types.ObjectId,
+        ref: 'Coach',
+      },
+      plays: Number,
+    }],
     stats: {
       passYds: {
         type: Number,

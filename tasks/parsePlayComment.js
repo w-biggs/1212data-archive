@@ -5,7 +5,9 @@
  */
 const findResultComments = function findResultComments(comment, parentComment) {
   // Check if is a result comment
-  if (comment.body.indexOf('has submitted') === -1 && comment.body.indexOf('left in the') >= 0) {
+  // End of regulation just says "In the 5th."
+  if (comment.body.indexOf('has submitted') === -1
+    && (comment.body.indexOf('left in the') >= 0 || comment.body.indexOf('In the') > 0)) {
     return {
       resultComment: comment,
       parentComment,
@@ -97,13 +99,27 @@ const findMatchingGist = function findMatchingGist(
  */
 const parsePlayComment = function parsePlayComment(comment, homeTeam, awayTeam, gistPlays) {
   const { resultComment, parentComment } = findResultComments(comment, null);
+  if (!resultComment) {
+    console.log(comment.body);
+    console.log(comment.author);
+    throw new Error('No result comment found');
+  }
 
   const offenseTeamRegex = /\. (.+) you're up/gm;
   const offenseTeamMatch = offenseTeamRegex.exec(comment.body);
   const homeOffense = (offenseTeamMatch[1] === homeTeam.team);
 
   // .slice() to make copies
-  const defCoach = homeOffense ? awayTeam.coach.slice() : homeTeam.coach.slice();
+  const defCoach = [];
+  if (homeOffense) {
+    for (let i = 0; i < awayTeam.coaches.length; i += 1) {
+      defCoach.push(awayTeam.coaches[i].name);
+    }
+  } else {
+    for (let i = 0; i < homeTeam.coaches.length; i += 1) {
+      defCoach.push(homeTeam.coaches[i].name);
+    }
+  }
 
   const numbersRegex = /Offense: ([0-9]+)\n+Defense: ([0-9]+)/gm;
   const numbersMatch = numbersRegex.exec(resultComment.body);
@@ -112,10 +128,18 @@ const parsePlayComment = function parsePlayComment(comment, homeTeam, awayTeam, 
     [, offNum, defNum] = numbersMatch;
   }
 
+  let quarter = 0;
+  let clock = 0;
   const timeRegex = /([0-9]+):([0-9]+) left in the ([0-9]+)/gm;
   const timeMatch = timeRegex.exec(resultComment.body);
-  const [, mins, secs, quarter] = timeMatch;
-  const clock = (parseInt(mins, 10) * 60) + parseInt(secs, 10);
+  if (timeMatch) {
+    clock = (parseInt(timeMatch[1], 10) * 60) + parseInt(timeMatch[2], 10);
+    quarter = parseInt(quarter[3], 10);
+  } else {
+    const quarterRegex = /[i|I]n the ([0-9]+)/;
+    const quarterMatch = quarterRegex.exec(resultComment.body);
+    quarter = parseInt(quarterMatch[1], 10);
+  }
 
   const secondsRegex = /took ([0-9]+) seconds/gm;
   const secondsMatch = secondsRegex.exec(resultComment.body);
@@ -123,9 +147,11 @@ const parsePlayComment = function parsePlayComment(comment, homeTeam, awayTeam, 
   if (!secondsMatch) {
     timeRegex.lastIndex = 0;
     const oldTimeMatch = timeRegex.exec(comment.body);
-    const [, oldMins, oldSecs] = oldTimeMatch;
-    const oldClock = (parseInt(oldMins, 10) * 60) + parseInt(oldSecs, 10);
-    playLength = oldClock - clock;
+    if (oldTimeMatch) {
+      const [, oldMins, oldSecs] = oldTimeMatch;
+      const oldClock = (parseInt(oldMins, 10) * 60) + parseInt(oldSecs, 10);
+      playLength = oldClock - clock;
+    }
   } else {
     playLength = parseInt(secondsMatch[1], 10);
   }
@@ -138,7 +164,7 @@ const parsePlayComment = function parsePlayComment(comment, homeTeam, awayTeam, 
   } else if (comment.body.indexOf('CONVERSION') > 0) {
     location = 3;
   } else {
-    const locationRegex = /on the .+ ([0-9]+)\./gm;
+    const locationRegex = /on the.+?([0-9]+)\./gm;
     const locationMatch = locationRegex.exec(comment.body);
     if (!locationMatch) {
       console.log(comment.body);
@@ -157,7 +183,7 @@ const parsePlayComment = function parsePlayComment(comment, homeTeam, awayTeam, 
       coach: defCoach,
     },
     playType,
-    quarter: parseInt(quarter, 10),
+    quarter,
     clock,
     playLength,
   };
