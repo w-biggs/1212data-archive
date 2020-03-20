@@ -26,7 +26,7 @@ db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', () => {
   console.log('Connected!');
 
-  addGame('fl3p5v')
+  addGame('fluajk')
     .catch(err => err && console.error(err))
     .then(writeDebug);
 });

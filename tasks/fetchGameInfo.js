@@ -9,60 +9,6 @@ const fetchGamePlays = require('./fetchGamePlays');
 
 const reddit = new Snoowrap(config);
 
-const getCoachesFromComments = function getCoachesFromComments(gameJson) {
-  const teamCoaches = [];
-  for (let i = 0; i < gameJson.comments.length; i += 1) {
-    const comment = gameJson.comments[i];
-    if (comment.body.indexOf('has submitted') >= 0) {
-      const teamNameRegex = /number\. (.+) you're up/gm;
-      const teamNameMatch = teamNameRegex.exec(comment.body);
-      const teamName = teamNameMatch[1];
-  
-      // Sometimes comments just end with a username, sometimes they have the whole 'reply' spiel.
-      const coachRegex = /^(\/u\/.+)$/m;
-      const coachMatch = coachRegex.exec(comment.body);
-      const coaches = coachMatch[1].split(' reply')[0].split(' and ');
-      
-      let foundTeam = false;
-      for (let j = 0; j < teamCoaches.length; j += 1) {
-        const teamCoach = teamCoaches[j];
-        if (teamCoach.team === teamName) {
-          foundTeam = true;
-          for (let k = 0; k < coaches.length; k += 1) {
-            let foundCoach = false;
-            for (let l = 0; l < teamCoach.coaches.length; l += 1) {
-              if (teamCoach.coaches[l].name === coaches[k]) {
-                foundCoach = true;
-                teamCoach.coaches[l].plays += 1;
-              }
-            }
-            if (!foundCoach) {
-              teamCoach.coaches.push({
-                name: coaches[k],
-                plays: 1,
-              });
-            }
-          }
-        }
-      }
-      if (!foundTeam) {
-        const coachArray = [];
-        for (let j = 0; j < coaches.length; j += 1) {
-          coachArray.push({
-            name: coaches[j],
-            plays: 1,
-          });
-        }
-        teamCoaches.push({
-          team: teamName,
-          coaches: coachArray,
-        });
-      }
-    }
-  }
-  return teamCoaches;
-};
-
 /**
  * Get stats from the game
  * @param {String} postBody The post's body
@@ -192,16 +138,6 @@ const parseGameJson = function parseGameJson(gameJson, gameId) {
       const oldTeamInfoMatch = oldTeamInfoRegex.exec(gameJson.title);
       [, gameObj.awayTeam.team, gameObj.homeTeam.team] = oldTeamInfoMatch;
     }
-
-    const teamCoaches = getCoachesFromComments(gameJson);
-    for (let i = 0; i < teamCoaches.length; i += 1) {
-      const teamCoach = teamCoaches[i];
-      if (teamCoach.team === gameObj.awayTeam.team) {
-        gameObj.awayTeam.coaches = teamCoach.coaches;
-      } else if (teamCoach.team === gameObj.homeTeam.team) {
-        gameObj.homeTeam.coaches = teamCoach.coaches;
-      }
-    }
   
     let playsLink = '';
     const playsLinkRegex = /\[Plays\]\((.+)\)/gm;
@@ -214,10 +150,15 @@ const parseGameJson = function parseGameJson(gameJson, gameId) {
     gameObj.homeTeam.stats = gameStats.homeStats;
     gameObj.awayTeam.stats = gameStats.awayStats;
 
-    fetchGamePlays(playsLink, gameId, reddit, gameObj.homeTeam, gameObj.awayTeam)
+    fetchGamePlays(playsLink, gameJson, gameObj.homeTeam, gameObj.awayTeam)
       .catch(reject)
-      .then((plays) => {
+      .then((response) => {
+        const { plays, teamCoaches } = response;
         gameObj.plays = plays;
+
+        gameObj.homeTeam.coaches = teamCoaches.home;
+        gameObj.awayTeam.coaches = teamCoaches.away;
+
         resolve(gameObj);
       });
   });
@@ -409,6 +350,7 @@ const fillGameRefs = function fillGameRefs(parsedGame) {
 const fetchGameInfo = function fetchAndParseGameInfo(gameId) {
   return new Promise((resolve, reject) => {
     reddit.getSubmission(gameId).fetch()
+      .expandReplies({ limit: Infinity, depth: Infinity })
       .catch(reject)
       .then((response) => {
         parseGameJson(response, gameId)

@@ -50,23 +50,63 @@ const detectGistFormat = function detectGistFormat(gistContent) {
  */
 const parseGist = function parseGist(gistContent, gistFormat) {
   const plays = [];
+  const teamCoaches = {
+    home: [],
+    away: [],
+  };
   const rows = gistContent.split('\n');
   if (gistFormat === 18) {
-    for (let i = 0; i < rows.length; i += 1) {
+    // skip first row, which is the header row
+    for (let i = 1; i < rows.length; i += 1) {
       const row = rows[i];
       const cols = row.split('|');
       const [, , quarter, clock, yardLine, offenseTeam, down, distance,
         defNum, offNum, defCoach, offCoach, playType, , result, yards,
         playTime, runoffTime] = cols;
+      const homeOffense = (offenseTeam === 'home');
+
+      const prefixedOffCoach = `/u/${offCoach.toLowerCase()}`;
+      const prefixedDefCoach = `/u/${defCoach.toLowerCase()}`;
+
+      // Put home coach in list
+      let foundHome = false;
+      for (let j = 0; j < teamCoaches.home.length; j += 1) {
+        if (teamCoaches.home[j].name === (homeOffense ? prefixedOffCoach : prefixedDefCoach)) {
+          foundHome = true;
+          teamCoaches.home[j].plays += 1;
+        }
+      }
+      if (!foundHome) {
+        teamCoaches.home.push({
+          name: (homeOffense ? prefixedOffCoach : prefixedDefCoach),
+          plays: 1,
+        });
+      }
+
+      // Put away coach in list
+      let foundAway = false;
+      for (let j = 0; j < teamCoaches.away.length; j += 1) {
+        if (teamCoaches.away[j].name === (homeOffense ? prefixedDefCoach : prefixedOffCoach)) {
+          foundAway = true;
+          teamCoaches.away[j].plays += 1;
+        }
+      }
+      if (!foundAway) {
+        teamCoaches.away.push({
+          name: (homeOffense ? prefixedDefCoach : prefixedOffCoach),
+          plays: 1,
+        });
+      }
+
       plays.push({
-        homeOffense: (offenseTeam === 'home'),
+        homeOffense,
         offense: {
           number: parseInt(offNum, 10),
-          coach: offCoach,
+          coach: `/u/${offCoach.toLowerCase()}`,
         },
         defense: {
           number: parseInt(defNum, 10),
-          coach: [defCoach],
+          coach: [`/u/${defCoach.toLowerCase()}`],
         },
         playType: playType.replace('Play.', ''),
         result: result.replace('Result.', ''),
@@ -112,50 +152,86 @@ const parseGist = function parseGist(gistContent, gistFormat) {
     }
   }
 
-  return plays;
+  return {
+    plays,
+    teamCoaches,
+  };
 };
 
 /**
  * Fetches the plays from a game's comments.
- * @param {String} gameId Game's Reddit post ID
- * @param {import('snoowrap')} reddit Snoowrap instance
+ * @param {Object} gameJson Game's json
  * @param {Object} homeTeam The home team's info
  * @param {Object} homeTeam The away team's info
  * @param {Object[]} gistPlays The list of plays from the gist.
  */
 const fetchPlaysFromComments = function fetchPlaysFromComments(
-  gameId, reddit, homeTeam, awayTeam, gistPlays,
+  gameJson, homeTeam, awayTeam, gistPlays,
 ) {
-  return new Promise((resolve, reject) => {
-    const plays = [];
-    reddit.getSubmission(gameId)
-      .expandReplies({ limit: Infinity, depth: Infinity })
-      .catch(reject)
-      .then((post) => {
-        const { comments } = post;
-        comments.sort((a, b) => a.created - b.created); // Make it oldest to newest
-        // fs.writeFile('test.json', JSON.stringify(comments, null, 2), err => console.error(err));
-        for (let i = 0; i < comments.length; i += 1) {
-          const comment = comments[i];
-          // If is a play comment
-          if (comment.body.indexOf('has submitted') >= 0 && comment.author.name.toLowerCase() === 'nfcaaofficialrefbot') {
-            plays.push(parsePlayComment(comment, homeTeam, awayTeam, gistPlays));
+  const plays = [];
+  const teamCoaches = {
+    home: [],
+    away: [],
+  };
+  const { comments } = gameJson;
+  comments.sort((a, b) => a.created - b.created); // Make it oldest to newest
+  // fs.writeFile('test.json', JSON.stringify(comments, null, 2), err => console.error(err));
+  for (let i = 0; i < comments.length; i += 1) {
+    const comment = comments[i];
+    // If is a play comment
+    if (comment.body.indexOf('has submitted') >= 0 && comment.author.name.toLowerCase() === 'nfcaaofficialrefbot') {
+      const play = parsePlayComment(comment, homeTeam, awayTeam, gistPlays);
+      const homeCoaches = play.homeOffense ? [play.offense.coach] : play.defense.coach;
+      const awayCoaches = play.homeOffense ? play.defense.coach : [play.offense.coach];
+      // Get home coaches
+      for (let j = 0; j < homeCoaches.length; j += 1) {
+        let foundHome = false;
+        for (let k = 0; k < teamCoaches.home.length; k += 1) {
+          if (teamCoaches.home[k].name === homeCoaches[j]) {
+            foundHome = true;
+            teamCoaches.home[k].plays += 1;
           }
         }
-        resolve(plays);
-      });
-  });
+        if (!foundHome) {
+          teamCoaches.home.push({
+            name: homeCoaches[j],
+            plays: 1,
+          });
+        }
+      }
+      // Get away coaches
+      for (let j = 0; j < awayCoaches.length; j += 1) {
+        let foundAway = false;
+        for (let k = 0; k < teamCoaches.away.length; k += 1) {
+          if (teamCoaches.away[k].name === awayCoaches[j]) {
+            foundAway = true;
+            teamCoaches.away[k].plays += 1;
+          }
+        }
+        if (!foundAway) {
+          teamCoaches.away.push({
+            name: awayCoaches[j],
+            plays: 1,
+          });
+        }
+      }
+      plays.push(play);
+    }
+  }
+  return {
+    plays,
+    teamCoaches,
+  };
 };
 
 /**
  * Returns an array of play objects
  * @param {String} gistLink URL to the play's gist
- * @param {String} gameId Game's Reddit post ID
- * @param {import('snoowrap')} reddit Snoowrap instance
+ * @param {Object} gameJson Game's json
  * @param {Object} homeTeam The home team's info
  * @param {Object} homeTeam The away team's info
  */
-const fetchGamePlays = function fetchGamePlays(gistLink, gameId, reddit, homeTeam, awayTeam) {
+const fetchGamePlays = function fetchGamePlays(gistLink, gameJson, homeTeam, awayTeam) {
   return new Promise((resolve, reject) => {
     if (!gistLink) {
       return resolve(null); // Not possible to get plays for these games.
@@ -165,16 +241,13 @@ const fetchGamePlays = function fetchGamePlays(gistLink, gameId, reddit, homeTea
       .then((gistContent) => {
         const gistFormat = detectGistFormat(gistContent);
         if (gistFormat === 18) {
-          const plays = parseGist(gistContent, gistFormat);
-          return resolve(plays);
+          return resolve(parseGist(gistContent, gistFormat));
         }
         if (gistFormat === 5) {
-          const gistPlays = parseGist(gistContent, gistFormat);
-          return fetchPlaysFromComments(gameId, reddit, homeTeam, awayTeam, gistPlays)
-            .catch(reject)
-            .then(resolve);
+          const { plays: gistPlays } = parseGist(gistContent, gistFormat);
+          return resolve(fetchPlaysFromComments(gameJson, homeTeam, awayTeam, gistPlays));
         }
-        return reject(new Error(`Could not get plays for game ${gameId}`));
+        return reject(new Error(`Could not get plays for game ${gameJson.id}`));
       });
   });
 };
