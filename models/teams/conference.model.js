@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
+
+const { Schema } = mongoose;
 
 const conferenceSchema = new Schema({
   name: String,
@@ -11,7 +12,7 @@ const conferenceSchema = new Schema({
   divisions: [{
     type: Schema.Types.ObjectId,
     ref: 'Division',
-  }]
+  }],
 });
 
 module.exports = mongoose.model('Conference', conferenceSchema);

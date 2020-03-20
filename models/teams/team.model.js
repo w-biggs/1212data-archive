@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
+
+const { Schema } = mongoose;
 
 const teamSchema = new Schema({
   name: String,
@@ -9,7 +10,7 @@ const teamSchema = new Schema({
   division: {
     type: Schema.Types.ObjectId,
     ref: 'Division',
-  }
+  },
 });
 
 module.exports = mongoose.model('Team', teamSchema);
