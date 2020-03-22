@@ -91,6 +91,48 @@ const findMatchingGist = function findMatchingGist(
 };
 
 /**
+ * Get the coach names from the comment
+ * @param {Object} comment The comment to parse
+ * @param {Object} parentComment The parent comment
+ * @param {Object} homeTeam The home team info
+ * @param {Object} awayTeam The away team info
+ */
+const parsePlayCoaches = function parsePlayCoaches(comment, parentComment, homeTeam, awayTeam) {
+  let parent = parentComment;
+  if (!parentComment) {
+    ({ parentComment: parent } = findResultComments(comment, null));
+  }
+  if (!parent) {
+    console.log(comment.body);
+    console.log(comment.author);
+    throw new Error('No result comment found');
+  }
+
+  const offenseTeamRegex = /\. (.+) you're up/gm;
+  const offenseTeamMatch = offenseTeamRegex.exec(comment.body);
+  const homeOffense = (offenseTeamMatch[1] === homeTeam.team);
+
+  const defCoach = [];
+  if (homeOffense) {
+    for (let i = 0; i < awayTeam.coaches.length; i += 1) {
+      defCoach.push(awayTeam.coaches[i].name);
+    }
+  } else {
+    for (let i = 0; i < homeTeam.coaches.length; i += 1) {
+      defCoach.push(homeTeam.coaches[i].name);
+    }
+  }
+
+  const offCoach = `/u/${parent.author.name.toLowerCase()}`;
+
+  return {
+    offCoach,
+    defCoach,
+    homeOffense,
+  };
+};
+
+/**
  * Get the play info from the comment
  * @param {Object} comment The comment to parse
  * @param {Object} homeTeam The home team info
@@ -103,22 +145,6 @@ const parsePlayComment = function parsePlayComment(comment, homeTeam, awayTeam, 
     console.log(comment.body);
     console.log(comment.author);
     throw new Error('No result comment found');
-  }
-
-  const offenseTeamRegex = /\. (.+) you're up/gm;
-  const offenseTeamMatch = offenseTeamRegex.exec(comment.body);
-  const homeOffense = (offenseTeamMatch[1] === homeTeam.team);
-
-  // .slice() to make copies
-  const defCoach = [];
-  if (homeOffense) {
-    for (let i = 0; i < awayTeam.coaches.length; i += 1) {
-      defCoach.push(awayTeam.coaches[i].name);
-    }
-  } else {
-    for (let i = 0; i < homeTeam.coaches.length; i += 1) {
-      defCoach.push(homeTeam.coaches[i].name);
-    }
   }
 
   const numbersRegex = /Offense: ([0-9]+)\n+Defense: ([0-9]+)/gm;
@@ -172,7 +198,11 @@ const parsePlayComment = function parsePlayComment(comment, homeTeam, awayTeam, 
     location = parseInt(locationMatch[1], 10);
   }
 
-  const offCoach = `/u/${parentComment.author.name.toLowerCase()}`;
+  const {
+    offCoach,
+    defCoach,
+    homeOffense,
+  } = parsePlayCoaches(comment, parentComment, homeTeam, awayTeam);
 
   const play = {
     homeOffense,
@@ -203,4 +233,7 @@ const parsePlayComment = function parsePlayComment(comment, homeTeam, awayTeam, 
   return play;
 };
 
-module.exports = parsePlayComment;
+module.exports = {
+  parsePlayCoaches,
+  parsePlayComment,
+};

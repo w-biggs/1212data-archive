@@ -80,88 +80,87 @@ const parseGameStats = function parseGameStats(postBody) {
 };
 
 const parseGameJson = function parseGameJson(gameJson, gameId) {
-  return new Promise((resolve, reject) => {
-    const postBody = gameJson.selftext;
+  const postBody = gameJson.selftext;
 
-    const gameObj = {
-      gameId,
-      startTime: gameJson.created,
-      endTime: gameJson.edited,
-      homeTeam: {
-        team: '',
-        coaches: [],
-        stats: {
-          passYds: 0,
-          rushYds: 0,
-          interceptions: 0,
-          fumbles: 0,
-          fieldGoals: {
-            attempts: 0,
-            makes: 0,
-          },
-          timeOfPossession: 0,
-          timeoutsRemaining: 3,
-          score: [],
+  const gameObj = {
+    gameId,
+    startTime: gameJson.created,
+    endTime: gameJson.edited,
+    homeTeam: {
+      team: '',
+      coaches: [],
+      stats: {
+        passYds: 0,
+        rushYds: 0,
+        interceptions: 0,
+        fumbles: 0,
+        fieldGoals: {
+          attempts: 0,
+          makes: 0,
         },
+        timeOfPossession: 0,
+        timeoutsRemaining: 3,
+        score: [],
       },
-      awayTeam: {
-        team: '',
-        coaches: [],
-        stats: {
-          passYds: 0,
-          rushYds: 0,
-          interceptions: 0,
-          fumbles: 0,
-          fieldGoals: {
-            attempts: 0,
-            makes: 0,
-          },
-          timeOfPossession: 0,
-          timeoutsRemaining: 3,
-          score: [],
+    },
+    awayTeam: {
+      team: '',
+      coaches: [],
+      stats: {
+        passYds: 0,
+        rushYds: 0,
+        interceptions: 0,
+        fumbles: 0,
+        fieldGoals: {
+          attempts: 0,
+          makes: 0,
         },
+        timeOfPossession: 0,
+        timeoutsRemaining: 3,
+        score: [],
       },
-      plays: [],
-      live: !(postBody.indexOf('Game complete') >= 0),
-    };
-  
-    /**
-     * Benchmarked this - multiple small regexes is twice as fast.
-     */
-    const teamInfoRegex = /Defense\n.*\n\[(.+)\].+\|(.+)\|(.+)\n\[(.+)\].+\|(.+)\|(.+)/gm;
-    const teamInfoMatch = teamInfoRegex.exec(postBody);
-    if (teamInfoMatch) {
-      [, gameObj.awayTeam.team, gameObj.awayTeam.offense, gameObj.awayTeam.defense,
-        gameObj.homeTeam.team, gameObj.homeTeam.offense, gameObj.homeTeam.defense] = teamInfoMatch;
-    } else {
-      const oldTeamInfoRegex = /\[GAME THREAD\].+?\) (.+) @ .+?\) (.+)/;
-      const oldTeamInfoMatch = oldTeamInfoRegex.exec(gameJson.title);
-      [, gameObj.awayTeam.team, gameObj.homeTeam.team] = oldTeamInfoMatch;
-    }
-  
-    let playsLink = '';
-    const playsLinkRegex = /\[Plays\]\((.+)\)/gm;
-    const playsLinkMatch = playsLinkRegex.exec(postBody);
-    if (playsLinkMatch) {
-      [, playsLink] = playsLinkMatch;
-    }
+    },
+    plays: [],
+    live: !(postBody.indexOf('Game complete') >= 0),
+  };
 
-    const gameStats = parseGameStats(postBody);
-    gameObj.homeTeam.stats = gameStats.homeStats;
-    gameObj.awayTeam.stats = gameStats.awayStats;
+  /**
+   * Benchmarked this - multiple small regexes is twice as fast.
+   */
+  const teamInfoRegex = /Defense\n.*\n\[(.+)\].+\|(.+)\|(.+)\n\[(.+)\].+\|(.+)\|(.+)/gm;
+  const teamInfoMatch = teamInfoRegex.exec(postBody);
+  if (teamInfoMatch) {
+    [, gameObj.awayTeam.team, gameObj.awayTeam.offense, gameObj.awayTeam.defense,
+      gameObj.homeTeam.team, gameObj.homeTeam.offense, gameObj.homeTeam.defense] = teamInfoMatch;
+  } else {
+    const oldTeamInfoRegex = /\[GAME THREAD\].+?\) (.+) @ .+?\) (.+)/;
+    const oldTeamInfoMatch = oldTeamInfoRegex.exec(gameJson.title);
+    [, gameObj.awayTeam.team, gameObj.homeTeam.team] = oldTeamInfoMatch;
+  }
 
-    fetchGamePlays(playsLink, gameJson, gameObj.homeTeam, gameObj.awayTeam)
-      .catch(reject)
-      .then((response) => {
-        const { plays, teamCoaches } = response;
-        gameObj.plays = plays;
+  let playsLink = '';
+  const playsLinkRegex = /\[Plays\]\((.+)\)/gm;
+  const playsLinkMatch = playsLinkRegex.exec(postBody);
+  if (playsLinkMatch) {
+    [, playsLink] = playsLinkMatch;
+  }
 
-        gameObj.homeTeam.coaches = teamCoaches.home;
-        gameObj.awayTeam.coaches = teamCoaches.away;
+  const gameStats = parseGameStats(postBody);
+  gameObj.homeTeam.stats = gameStats.homeStats;
+  gameObj.awayTeam.stats = gameStats.awayStats;
 
-        resolve(gameObj);
-      });
-  });
+  return fetchGamePlays(playsLink, gameJson, gameObj.homeTeam, gameObj.awayTeam)
+    .catch((error) => {
+      throw error;
+    })
+    .then((response) => {
+      const { plays, teamCoaches } = response;
+      gameObj.plays = plays.length === 0 ? null : plays;
+
+      gameObj.homeTeam.coaches = teamCoaches.home;
+      gameObj.awayTeam.coaches = teamCoaches.away;
+      return gameObj;
+    });
 };
 
 /**
@@ -169,16 +168,16 @@ const parseGameJson = function parseGameJson(gameJson, gameId) {
  * @param {String} teamName The name of the team to get the ref for.
  */
 const getTeamRef = function getTeamRefFromName(teamName) {
-  return new Promise((resolve, reject) => {
-    Team.findOne({ name: teamName })
-      .catch(reject)
-      .then((team) => {
-        if (!team) {
-          console.error(`Team ${teamName} not found in database.`);
-        }
-        resolve(team._id);
-      });
-  });
+  return Team.findOne({ name: teamName })
+    .catch((error) => {
+      throw error;
+    })
+    .then((team) => {
+      if (!team) {
+        throw new Error(`Team ${teamName} not found in database.`);
+      }
+      return team._id;
+    });
 };
 
 /**
@@ -186,22 +185,20 @@ const getTeamRef = function getTeamRefFromName(teamName) {
  * @param {String} username The username of the coach to get the ref for.
  */
 const getCoachRef = function getCoachRefFromUsername(username) {
-  return new Promise((resolve, reject) => {
-    const plainUsername = username.replace('/u/', '');
-    Coach.findOne({ username: plainUsername })
-      .catch(reject)
-      .then((coach) => {
-        if (!coach) {
-          console.error(`Coach ${plainUsername} not found in database.`);
-          const newCoach = new Coach({ username: plainUsername });
-          newCoach.save()
-            .catch(reject)
-            .then(savedCoach => resolve(savedCoach._id));
-        } else {
-          resolve(coach._id);
-        }
-      });
-  });
+  const plainUsername = username.replace('/u/', '');
+  return Coach.findOne({ username: plainUsername })
+    .catch((error) => {
+      throw error;
+    })
+    .then((coach) => {
+      if (!coach) {
+        console.log(`Coach ${plainUsername} not found in database.`);
+        const newCoach = new Coach({ username: plainUsername });
+        return newCoach.save()
+          .then(savedCoach => savedCoach._id);
+      }
+      return coach._id;
+    });
 };
 
 /**
@@ -286,14 +283,11 @@ const fillCoachRefs = function fillCoachRefs(coaches) {
   for (let i = 0; i < coaches.length; i += 1) {
     const coach = coaches[i];
     coachPromises.push(
-      new Promise((resolve, reject) => {
-        getCoachRef(coach.name)
-          .catch(reject)
-          .then((coachId) => {
-            coach.coach = coachId;
-            resolve(coach);
-          });
-      }),
+      getCoachRef(coach.name)
+        .then(coachId => ({
+          coach: coachId,
+          ...coach,
+        })),
     );
   }
   return Promise.all(coachPromises);
@@ -304,64 +298,36 @@ const fillCoachRefs = function fillCoachRefs(coaches) {
  * @param {Object} parsedGame The game to fill refs for
  */
 const fillGameRefs = function fillGameRefs(parsedGame) {
-  return new Promise((resolve, reject) => {
-    const gameObj = parsedGame;
-    const promises = [];
-    promises.push(
-      new Promise((subResolve, subReject) => {
-        getTeamRef(gameObj.homeTeam.team)
-          .catch(subReject)
-          .then((teamRef) => {
-            gameObj.homeTeam.team = teamRef;
-            subResolve();
-          });
-      }),
-      new Promise((subResolve, subReject) => {
-        getTeamRef(gameObj.awayTeam.team)
-          .catch(subReject)
-          .then((teamRef) => {
-            gameObj.awayTeam.team = teamRef;
-            subResolve();
-          });
-      }),
-      new Promise((subResolve, subReject) => {
-        fillCoachRefs(gameObj.awayTeam.coaches)
-          .catch(subReject)
-          .then((coaches) => {
-            gameObj.awayTeam.coaches = coaches;
-            subResolve();
-          });
-      }),
-      new Promise((subResolve, subReject) => {
-        fillCoachRefs(gameObj.homeTeam.coaches)
-          .catch(subReject)
-          .then((coaches) => {
-            gameObj.homeTeam.coaches = coaches;
-            subResolve();
-          });
-      }),
-    );
-    Promise.all(promises)
-      .catch(reject)
-      .then(() => resolve(fillPlayRefs(gameObj)));
-  });
+  const gameObj = parsedGame;
+
+  return Promise.all([
+    getTeamRef(gameObj.homeTeam.team),
+    getTeamRef(gameObj.awayTeam.team),
+    fillCoachRefs(gameObj.homeTeam.coaches),
+    fillCoachRefs(gameObj.awayTeam.coaches),
+  ])
+    .catch((error) => {
+      throw error;
+    })
+    .then((filledVals) => {
+      [
+        gameObj.homeTeam.team,
+        gameObj.awayTeam.team,
+        gameObj.homeTeam.coaches,
+        gameObj.awayTeam.coaches,
+      ] = filledVals;
+      return fillPlayRefs(gameObj);
+    });
 };
 
 const fetchGameInfo = function fetchAndParseGameInfo(gameId) {
-  return new Promise((resolve, reject) => {
-    reddit.getSubmission(gameId).fetch()
-      .expandReplies({ limit: Infinity, depth: Infinity })
-      .catch(reject)
-      .then((response) => {
-        parseGameJson(response, gameId)
-          .catch(reject)
-          .then((parsedGame) => {
-            fillGameRefs(parsedGame)
-              .catch(reject)
-              .then(resolve);
-          });
-      });
-  });
+  return reddit.getSubmission(gameId).fetch()
+    .expandReplies({ limit: Infinity, depth: Infinity })
+    .then(response => parseGameJson(response, gameId))
+    .then(parsedGame => fillGameRefs(parsedGame))
+    .catch((error) => {
+      throw error;
+    });
 };
 
 module.exports = fetchGameInfo;

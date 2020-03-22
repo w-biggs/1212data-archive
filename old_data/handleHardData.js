@@ -3,11 +3,11 @@
  * A bit rough - learned how Mongoose works thru this
  */
 
-const fcs = require('./old_data/fcs.json');
-const Level = require('./models/teams/level.model');
-const Conference = require('./models/teams/conference.model');
-const Division = require('./models/teams/division.model');
-const Team = require('./models/teams/team.model');
+const fcs = require('./fcs.json');
+const Level = require('../models/teams/level.model');
+const Conference = require('../models/teams/conference.model');
+const Division = require('../models/teams/division.model');
+const Team = require('../models/teams/team.model');
 
 const levelsObj = [{
   name: 'Football Championship Subdivision',

@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const fs = require('fs');
-const addGame = require('./tasks/addGame');
+const addOldGames = require('./old_data/oldGames');
+// const { addGame } = require('./tasks/addGame');
 
 /* Connect to MongoDB */
 mongoose.connect('mongodb://127.0.0.1:27017/1212', {
@@ -26,7 +27,11 @@ db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', () => {
   console.log('Connected!');
 
-  addGame('fluajk')
-    .catch(err => err && console.error(err))
+  addOldGames()
+    .catch(console.error)
     .then(writeDebug);
+
+  /* addGame('fluajk')
+    .catch(err => err && console.error(err))
+    .then(writeDebug); */
 });

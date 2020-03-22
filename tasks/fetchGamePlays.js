@@ -2,7 +2,7 @@
  * Parses the plays from the given gist, or gets them from reddit if bad.
  */
 const https = require('https');
-const parsePlayComment = require('./parsePlayComment');
+const { parsePlayCoaches, parsePlayComment } = require('./parsePlayComment');
 // const fs = require('fs');
 
 const fetchGist = function fetchGistContents(gist) {
@@ -165,7 +165,7 @@ const parseGist = function parseGist(gistContent, gistFormat) {
  * @param {Object} homeTeam The away team's info
  * @param {Object[]} gistPlays The list of plays from the gist.
  */
-const fetchPlaysFromComments = function fetchPlaysFromComments(
+const fetchInfoFromComments = function fetchInfoFromComments(
   gameJson, homeTeam, awayTeam, gistPlays,
 ) {
   const plays = [];
@@ -180,9 +180,16 @@ const fetchPlaysFromComments = function fetchPlaysFromComments(
     const comment = comments[i];
     // If is a play comment
     if (comment.body.indexOf('has submitted') >= 0 && comment.author.name.toLowerCase() === 'nfcaaofficialrefbot') {
-      const play = parsePlayComment(comment, homeTeam, awayTeam, gistPlays);
-      const homeCoaches = play.homeOffense ? [play.offense.coach] : play.defense.coach;
-      const awayCoaches = play.homeOffense ? play.defense.coach : [play.offense.coach];
+      const play = gistPlays
+        ? parsePlayComment(comment, homeTeam, awayTeam, gistPlays)
+        : parsePlayCoaches(comment, null, homeTeam, awayTeam);
+
+      const offCoach = gistPlays ? play.offense.coach : play.offCoach;
+      const defCoach = gistPlays ? play.defense.coach : play.defCoach;
+      
+      const homeCoaches = play.homeOffense ? [offCoach] : defCoach;
+      const awayCoaches = play.homeOffense ? defCoach : [offCoach];
+
       // Get home coaches
       for (let j = 0; j < homeCoaches.length; j += 1) {
         let foundHome = false;
@@ -215,7 +222,9 @@ const fetchPlaysFromComments = function fetchPlaysFromComments(
           });
         }
       }
-      plays.push(play);
+      if (gistPlays) {
+        plays.push(play);
+      }
     }
   }
   return {
@@ -234,7 +243,8 @@ const fetchPlaysFromComments = function fetchPlaysFromComments(
 const fetchGamePlays = function fetchGamePlays(gistLink, gameJson, homeTeam, awayTeam) {
   return new Promise((resolve, reject) => {
     if (!gistLink) {
-      return resolve(null); // Not possible to get plays for these games.
+      // Just get coaches
+      return resolve(fetchInfoFromComments(gameJson, homeTeam, awayTeam, null));
     }
     return fetchGist(gistLink)
       .catch(reject)
@@ -245,7 +255,7 @@ const fetchGamePlays = function fetchGamePlays(gistLink, gameJson, homeTeam, awa
         }
         if (gistFormat === 5) {
           const { plays: gistPlays } = parseGist(gistContent, gistFormat);
-          return resolve(fetchPlaysFromComments(gameJson, homeTeam, awayTeam, gistPlays));
+          return resolve(fetchInfoFromComments(gameJson, homeTeam, awayTeam, gistPlays));
         }
         return reject(new Error(`Could not get plays for game ${gameJson.id}`));
       });
