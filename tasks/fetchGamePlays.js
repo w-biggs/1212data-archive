@@ -241,25 +241,22 @@ const fetchInfoFromComments = function fetchInfoFromComments(
  * @param {Object} homeTeam The away team's info
  */
 const fetchGamePlays = function fetchGamePlays(gistLink, gameJson, homeTeam, awayTeam) {
-  return new Promise((resolve, reject) => {
-    if (!gistLink) {
-      // Just get coaches
-      return resolve(fetchInfoFromComments(gameJson, homeTeam, awayTeam, null));
-    }
-    return fetchGist(gistLink)
-      .catch(reject)
-      .then((gistContent) => {
-        const gistFormat = detectGistFormat(gistContent);
-        if (gistFormat === 18) {
-          return resolve(parseGist(gistContent, gistFormat));
-        }
-        if (gistFormat === 5) {
-          const { plays: gistPlays } = parseGist(gistContent, gistFormat);
-          return resolve(fetchInfoFromComments(gameJson, homeTeam, awayTeam, gistPlays));
-        }
-        return reject(new Error(`Could not get plays for game ${gameJson.id}`));
-      });
-  });
+  if (!gistLink) {
+    // Just get coaches
+    return fetchInfoFromComments(gameJson, homeTeam, awayTeam, null);
+  }
+  return fetchGist(gistLink)
+    .then((gistContent) => {
+      const gistFormat = detectGistFormat(gistContent);
+      if (gistFormat === 18) {
+        return parseGist(gistContent, gistFormat);
+      }
+      if (gistFormat === 5) {
+        const { plays: gistPlays } = parseGist(gistContent, gistFormat);
+        return fetchInfoFromComments(gameJson, homeTeam, awayTeam, gistPlays);
+      }
+      throw new Error(`Could not get plays for game ${gameJson.id}`);
+    });
 };
 
 module.exports = fetchGamePlays;

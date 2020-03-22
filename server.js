@@ -28,7 +28,9 @@ db.once('open', () => {
   console.log('Connected!');
 
   addOldGames()
-    .catch(console.error)
+    .catch((error) => {
+      console.error(error);
+    })
     .then(writeDebug);
 
   /* addGame('fluajk')
