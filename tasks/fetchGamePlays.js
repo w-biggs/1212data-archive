@@ -179,51 +179,58 @@ const fetchInfoFromComments = function fetchInfoFromComments(
   for (let i = 0; i < comments.length; i += 1) {
     const comment = comments[i];
     // If is a play comment
-    if (comment.body.indexOf('has submitted') >= 0 && comment.author.name.toLowerCase() === 'nfcaaofficialrefbot') {
+    if (
+      comment.body.indexOf('has submitted') >= 0
+      && comment.author.name.toLowerCase() === 'nfcaaofficialrefbot'
+      && comment.replies
+      && comment.replies.length > 0
+    ) {
       const play = gistPlays
         ? parsePlayComment(comment, homeTeam, awayTeam, gistPlays)
         : parsePlayCoaches(comment, null, homeTeam, awayTeam);
-
-      const offCoach = gistPlays ? play.offense.coach : play.offCoach;
-      const defCoach = gistPlays ? play.defense.coach : play.defCoach;
       
-      const homeCoaches = play.homeOffense ? [offCoach] : defCoach;
-      const awayCoaches = play.homeOffense ? defCoach : [offCoach];
-
-      // Get home coaches
-      for (let j = 0; j < homeCoaches.length; j += 1) {
-        let foundHome = false;
-        for (let k = 0; k < teamCoaches.home.length; k += 1) {
-          if (teamCoaches.home[k].name === homeCoaches[j]) {
-            foundHome = true;
-            teamCoaches.home[k].plays += 1;
+      if (play) {
+        const offCoach = gistPlays ? play.offense.coach : play.offCoach;
+        const defCoach = gistPlays ? play.defense.coach : play.defCoach;
+        
+        const homeCoaches = play.homeOffense ? [offCoach] : defCoach;
+        const awayCoaches = play.homeOffense ? defCoach : [offCoach];
+  
+        // Get home coaches
+        for (let j = 0; j < homeCoaches.length; j += 1) {
+          let foundHome = false;
+          for (let k = 0; k < teamCoaches.home.length; k += 1) {
+            if (teamCoaches.home[k].name === homeCoaches[j]) {
+              foundHome = true;
+              teamCoaches.home[k].plays += 1;
+            }
+          }
+          if (!foundHome) {
+            teamCoaches.home.push({
+              name: homeCoaches[j],
+              plays: 1,
+            });
           }
         }
-        if (!foundHome) {
-          teamCoaches.home.push({
-            name: homeCoaches[j],
-            plays: 1,
-          });
-        }
-      }
-      // Get away coaches
-      for (let j = 0; j < awayCoaches.length; j += 1) {
-        let foundAway = false;
-        for (let k = 0; k < teamCoaches.away.length; k += 1) {
-          if (teamCoaches.away[k].name === awayCoaches[j]) {
-            foundAway = true;
-            teamCoaches.away[k].plays += 1;
+        // Get away coaches
+        for (let j = 0; j < awayCoaches.length; j += 1) {
+          let foundAway = false;
+          for (let k = 0; k < teamCoaches.away.length; k += 1) {
+            if (teamCoaches.away[k].name === awayCoaches[j]) {
+              foundAway = true;
+              teamCoaches.away[k].plays += 1;
+            }
+          }
+          if (!foundAway) {
+            teamCoaches.away.push({
+              name: awayCoaches[j],
+              plays: 1,
+            });
           }
         }
-        if (!foundAway) {
-          teamCoaches.away.push({
-            name: awayCoaches[j],
-            plays: 1,
-          });
+        if (gistPlays) {
+          plays.push(play);
         }
-      }
-      if (gistPlays) {
-        plays.push(play);
       }
     }
   }
@@ -240,23 +247,25 @@ const fetchInfoFromComments = function fetchInfoFromComments(
  * @param {Object} homeTeam The home team's info
  * @param {Object} homeTeam The away team's info
  */
-const fetchGamePlays = function fetchGamePlays(gistLink, gameJson, homeTeam, awayTeam) {
+const fetchGamePlays = async function fetchGamePlays(gistLink, gameJson, homeTeam, awayTeam) {
   if (!gistLink) {
     // Just get coaches
     return fetchInfoFromComments(gameJson, homeTeam, awayTeam, null);
   }
-  return fetchGist(gistLink)
-    .then((gistContent) => {
-      const gistFormat = detectGistFormat(gistContent);
-      if (gistFormat === 18) {
-        return parseGist(gistContent, gistFormat);
-      }
-      if (gistFormat === 5) {
-        const { plays: gistPlays } = parseGist(gistContent, gistFormat);
-        return fetchInfoFromComments(gameJson, homeTeam, awayTeam, gistPlays);
-      }
-      throw new Error(`Could not get plays for game ${gameJson.id}`);
-    });
+  
+  const gistContent = await fetchGist(gistLink);
+
+  const gistFormat = detectGistFormat(gistContent);
+
+  if (gistFormat === 18) {
+    return parseGist(gistContent, gistFormat);
+  }
+  if (gistFormat === 5) {
+    const { plays: gistPlays } = parseGist(gistContent, gistFormat);
+    return fetchInfoFromComments(gameJson, homeTeam, awayTeam, gistPlays);
+  }
+
+  throw new Error(`Could not get plays for game ${gameJson.id}`);
 };
 
 module.exports = fetchGamePlays;

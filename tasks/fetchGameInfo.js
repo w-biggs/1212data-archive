@@ -57,13 +57,13 @@ const parseGameStats = function parseGameStats(postBody) {
 
   [, awayStats.passYds, awayStats.rushYds, awayStats.interceptions, awayStats.fumbles,
     awayStats.fieldGoals.makes, awayStats.fieldGoals.attempts, awayMins, awaySecs,
-    awayStats.timeoutsRemaining] = awayStatsMatch;
-  awayStats.timeOfPossession = (parseInt(awayMins, 10) * 60) + parseInt(awaySecs, 10);
+    awayStats.timeoutsRemaining] = awayStatsMatch.map(match => parseInt(match, 10));
+  awayStats.timeOfPossession = (awayMins * 60) + awaySecs;
 
   [, homeStats.passYds, homeStats.rushYds, homeStats.interceptions, homeStats.fumbles,
     homeStats.fieldGoals.makes, homeStats.fieldGoals.attempts, homeMins, homeSecs,
-    homeStats.timeoutsRemaining] = homeStatsMatch;
-  homeStats.timeOfPossession = (parseInt(homeMins, 10) * 60) + parseInt(homeSecs, 10);
+    homeStats.timeoutsRemaining] = homeStatsMatch.map(match => parseInt(match, 10));
+  homeStats.timeOfPossession = (homeMins * 60) + homeSecs;
 
   const scoreRegex = /\|([0-9|]+)\|\*\*([0-9]+)/g;
   const homeScoreMatch = scoreRegex.exec(postBody);
@@ -321,6 +321,7 @@ const fillGameRefs = function fillGameRefs(parsedGame) {
 };
 
 const fetchGameInfo = function fetchAndParseGameInfo(gameId) {
+  reddit.config({ requestDelay: 1000 }); // Rate limits...
   return reddit.getSubmission(gameId).fetch()
     .expandReplies({ limit: Infinity, depth: Infinity })
     .then(response => parseGameJson(response, gameId))

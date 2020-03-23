@@ -18,6 +18,8 @@ const weekSchema = new Schema({
   }],
 });
 
-weekSchema.methods.weekName = () => (this.weekName ? this.weekName : `Week ${this.weekNo}`);
+weekSchema.index({ season: 1, weekNo: 1 }, { unique: true });
+
+weekSchema.methods.getWeekName = () => (this.weekName ? this.weekName : `Week ${this.weekNo}`);
 
 module.exports = mongoose.model('Week', weekSchema);

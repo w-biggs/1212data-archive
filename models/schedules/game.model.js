@@ -6,6 +6,7 @@ const gameSchema = new Schema({
   gameId: {
     type: String,
     required: [true, 'All games must have an associated Game ID.'],
+    unique: true,
   }, // Reddit thread ID for game
   startTime: Number, // Starting timestamp
   endTime: Number, // Ending timestamp
@@ -81,12 +82,10 @@ const gameSchema = new Schema({
     offense: {
       type: String,
       enum: ['Option', 'Pro', 'Spread', 'Air Raid'],
-      required: [true, 'All teams must have an offensive playbook.'],
     }, // Offensive playbook
     defense: {
       type: String,
       enum: ['3-4', '4-3', '5-2'],
-      required: [true, 'All teams must have a defensive playbook.'],
     }, // Defensive playbook
     team: {
       type: Schema.Types.ObjectId,

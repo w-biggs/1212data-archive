@@ -3,19 +3,21 @@
  */
 const games = require('./games.json');
 const fetchGameInfo = require('../tasks/fetchGameInfo');
+const { addGame } = require('../tasks/addGame');
 
 const addOldGames = function addOldGames() {
-  const gameFetches = [];
+  const gamePromises = [];
+  const modifiedGames = [];
   
   for (let i = 0; i < /* games.seasons.length */ 1; i += 1) {
     const season = games.seasons[i];
-    console.log(`Adding season ${season.seasonNo}`);
+    console.log(`Season ${season.seasonNo}`);
     for (let j = 0; j < /* season.weeks.length */ 1; j += 1) {
       const week = season.weeks[j];
-      console.log(`Adding week ${week.weekNo}`);
+      console.log(`Week ${week.weekNo}`);
       for (let k = 0; k < week.games.length; k += 1) {
         const game = week.games[k];
-        gameFetches.push(
+        gamePromises.push(
           fetchGameInfo(game.id)
             .catch((error) => {
               console.error(`Error in game ${game.id}.`);
@@ -26,15 +28,17 @@ const addOldGames = function addOldGames() {
               if (gameInfo.homeTeam.stats.score.final !== game.home.score
                 || gameInfo.awayTeam.stats.score.final !== game.away.score
               ) {
-                console.log(game.id);
+                modifiedGames.push(game.id);
               }
+              console.log(`Adding game ${game.id}.`);
+              return addGame(gameInfo, season.seasonNo, week.weekNo);
             }),
         );
       }
     }
   }
   
-  return Promise.all(gameFetches);
+  return Promise.all(gamePromises);
 };
 
 module.exports = addOldGames;

@@ -103,9 +103,8 @@ const parsePlayCoaches = function parsePlayCoaches(comment, parentComment, homeT
     ({ parentComment: parent } = findResultComments(comment, null));
   }
   if (!parent) {
-    console.log(comment.body);
-    console.log(comment.author);
-    throw new Error('No result comment found');
+    // No result comment found
+    return null;
   }
 
   const offenseTeamRegex = /\. (.+) you're up/gm;
@@ -198,11 +197,13 @@ const parsePlayComment = function parsePlayComment(comment, homeTeam, awayTeam, 
     location = parseInt(locationMatch[1], 10);
   }
 
-  const {
-    offCoach,
-    defCoach,
-    homeOffense,
-  } = parsePlayCoaches(comment, parentComment, homeTeam, awayTeam);
+  const playCoaches = parsePlayCoaches(comment, parentComment, homeTeam, awayTeam);
+
+  if (!playCoaches) {
+    return null;
+  }
+
+  const { offCoach, defCoach, homeOffense } = playCoaches;
 
   const play = {
     homeOffense,

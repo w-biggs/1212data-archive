@@ -6,6 +6,7 @@ const seasonSchema = new Schema({
   seasonNo: {
     type: Number,
     required: [true, 'All seasons must have a season number.'],
+    unique: true,
   },
   weeks: [{
     type: Schema.Types.ObjectId,
