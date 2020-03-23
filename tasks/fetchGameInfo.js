@@ -134,7 +134,7 @@ const parseGameJson = function parseGameJson(gameJson, gameId) {
       gameObj.homeTeam.team, gameObj.homeTeam.offense, gameObj.homeTeam.defense] = teamInfoMatch;
   } else {
     // Filters out things like "RESTARTED - NEXT SCORE WINS South Dakota"
-    const oldTeamInfoRegex = /\[GAME THREAD\].+?\)(?:.+[A-Z]{4,})? (.+) @ .+?\)(?:.+[A-Z]{4,})? (.+)/;
+    const oldTeamInfoRegex = /\[GAME THREAD\] (?:\(.+\) )?(?:.+[A-Z]{4,} )?(.+) @ (?:\(.+\) )?(?:.+[A-Z]{4,} )?(.+)/;
     const oldTeamInfoMatch = oldTeamInfoRegex.exec(gameJson.title);
     [, gameObj.awayTeam.team, gameObj.homeTeam.team] = oldTeamInfoMatch;
   }
