@@ -51,7 +51,7 @@ const parseGameStats = function parseGameStats(postBody) {
   let awayMins = 0;
   let awaySecs = 0;
 
-  const statsRegex = /:-:\n([0-9]+) yards\|([0-9]+) yards\|.+\|([0-9]+)\|([0-9]+)\|([0-9]+)\/([0-9]+)\|([0-9]+):([0-9]+)\|([0-9]+)/g;
+  const statsRegex = /:-:\n([-0-9]+) yards\|([-0-9]+) yards\|.+\|([0-9]+)\|([0-9]+)\|([0-9]+)\/([0-9]+)\|([0-9]+):([0-9]+)\|([0-9]+)/g;
   const awayStatsMatch = statsRegex.exec(postBody);
   const homeStatsMatch = statsRegex.exec(postBody);
 
