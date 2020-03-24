@@ -44,7 +44,8 @@ const playSchema = new Schema({
     enum: ['GAIN', 'KICK', 'TOUCHDOWN', 'TOUCHBACK',
       'SAFETY', 'INCOMPLETE', 'TURNOVER', 'KNEEL', 'SPIKE',
       'TWO_POINT', 'PAT', 'KICKOFF', 'TURNOVER_PAT',
-      'TURNOVER_TOUCHDOWN', 'FIELD_GOAL', 'MISS', 'PUNT'],
+      'TURNOVER_TOUCHDOWN', 'FIELD_GOAL', 'MISS', 'PUNT',
+      'NONE'],
   }, // Final "Result.XXXX" in play list
   yards: {
     type: Number,

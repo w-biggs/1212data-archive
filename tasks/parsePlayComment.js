@@ -156,13 +156,13 @@ const parsePlayComment = function parsePlayComment(comment, homeTeam, awayTeam, 
   let quarter = 0;
   let clock = 0;
   const timeRegex = /([0-9]+):([0-9]+) left in the ([0-9]+)/gm;
-  const timeMatch = timeRegex.exec(resultComment.body);
+  const timeMatch = timeRegex.exec(comment.body);
   if (timeMatch) {
     clock = (parseInt(timeMatch[1], 10) * 60) + parseInt(timeMatch[2], 10);
     quarter = parseInt(timeMatch[3], 10);
   } else {
     const quarterRegex = /[i|I]n the ([0-9]+)/;
-    const quarterMatch = quarterRegex.exec(resultComment.body);
+    const quarterMatch = quarterRegex.exec(comment.body);
     quarter = parseInt(quarterMatch[1], 10);
   }
 
@@ -171,11 +171,19 @@ const parsePlayComment = function parsePlayComment(comment, homeTeam, awayTeam, 
   let playLength = 0;
   if (!secondsMatch) {
     timeRegex.lastIndex = 0;
-    const oldTimeMatch = timeRegex.exec(comment.body);
-    if (oldTimeMatch) {
-      const [, oldMins, oldSecs] = oldTimeMatch;
-      const oldClock = (parseInt(oldMins, 10) * 60) + parseInt(oldSecs, 10);
-      playLength = oldClock - clock;
+    const newTimeMatch = timeRegex.exec(resultComment.body);
+    if (newTimeMatch) {
+      const [, newMins, newSecs] = newTimeMatch;
+      const newClock = (parseInt(newMins, 10) * 60) + parseInt(newSecs, 10);
+      if ((clock - newClock) < 0) {
+        if (newClock === 420) {
+          playLength = clock;
+        } else {
+          throw new Error(`Weird time issue: old clock is ${clock}, new clock is ${newClock}.`);
+        }
+      } else {
+        playLength = clock - newClock;
+      }
     }
   } else {
     playLength = parseInt(secondsMatch[1], 10);
