@@ -207,19 +207,24 @@ const parsePlayComment = function parsePlayComment(
     const secondsRegex = /took ([0-9]+) seconds/gm;
     const secondsMatch = secondsRegex.exec(resultComment.body);
     if (!secondsMatch) {
-      timeRegex.lastIndex = 0;
-      const newTimeMatch = timeRegex.exec(resultComment.body);
-      if (newTimeMatch) {
-        const [, newMins, newSecs] = newTimeMatch;
-        const newClock = (parseInt(newMins, 10) * 60) + parseInt(newSecs, 10);
-        if ((clock - newClock) < 0) {
-          if (newClock === 420) {
-            playLength = clock;
+      if (quarter > 4) {
+        playLength = 0; // Overtime
+      } else {
+        timeRegex.lastIndex = 0;
+        const newTimeMatch = timeRegex.exec(resultComment.body);
+
+        if (newTimeMatch) {
+          const [, newMins, newSecs] = newTimeMatch;
+          const newClock = (parseInt(newMins, 10) * 60) + parseInt(newSecs, 10);
+          if ((clock - newClock) < 0) {
+            if (newClock === 420) {
+              playLength = clock;
+            } else {
+              throw new Error(`Weird time issue: old clock is ${clock}, new clock is ${newClock}.`);
+            }
           } else {
-            throw new Error(`Weird time issue: old clock is ${clock}, new clock is ${newClock}.`);
+            playLength = clock - newClock;
           }
-        } else {
-          playLength = clock - newClock;
         }
       }
     } else {
