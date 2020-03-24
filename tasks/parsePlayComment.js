@@ -45,14 +45,30 @@ const findResultComments = function findResultComments(comment, parentComment) {
       parentComment,
     };
   }
+
+  // Check if is an error comment
+  if (comment.body.indexOf('are you sure you replied to the right message?') > 0) {
+    return 'error';
+  }
+
   if (comment.replies && comment.replies.length) {
+    /**
+     * If, after all replies are gone thru, the play is an error and has no valid result comments,
+     * return 'error'.
+     */
+    let isError = false;
     // First look for ones with result comments
     for (let i = 0; i < comment.replies.length; i += 1) {
       const reply = comment.replies[i];
       const replyCheck = findResultComments(reply, comment);
-      if (replyCheck !== false) {
+      if (replyCheck === 'error') {
+        isError = true;
+      } else if (replyCheck !== false) {
         return replyCheck;
       }
+    }
+    if (isError) {
+      return 'error';
     }
     // If no result comments exist, look for the first valid play
     for (let i = 0; i < comment.replies.length; i += 1) {
@@ -231,7 +247,7 @@ const parsePlayComment = function parsePlayComment(
       playLength = parseInt(secondsMatch[1], 10);
     }
   } else {
-    if (!nextComment) {
+    if (!nextComment || !parentComment) {
       return false; // Ignore this play.
     }
     console.log(`No result comment found for play ${comment.id}.`);
