@@ -3,6 +3,11 @@ const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
 const playSchema = new Schema({
+  commentId: {
+    type: String,
+    required: [true, 'All comments must have an associated Comment ID.'],
+    unique: true,
+  },
   game: {
     type: Schema.Types.ObjectId,
     ref: 'Game',
