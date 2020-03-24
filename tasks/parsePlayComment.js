@@ -119,7 +119,6 @@ const findMatchingGist = function findMatchingGist(
       return gistPlay;
     }
   }
-  // eslint-disable-next-line prefer-rest-params
   console.log(playType, offNum, defNum, location, homeOffense);
   return false;
 };
@@ -141,7 +140,8 @@ const parsePlayCoaches = function parsePlayCoaches(comment, parentComment, homeT
     return null;
   }
 
-  const offenseTeamRegex = /\. (.+) you're up/gm;
+  // Have to include "number" or else "Stephen F. Austin", for example, breaks this
+  const offenseTeamRegex = /number\. (.+) you're up/gm;
   const offenseTeamMatch = offenseTeamRegex.exec(comment.body);
   const homeOffense = (offenseTeamMatch[1] === homeTeam.team);
 
