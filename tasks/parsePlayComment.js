@@ -82,6 +82,13 @@ const findMatchingGist = function findMatchingGist(
   for (let i = 0; i < gistPlays.length; i += 1) {
     const gistPlay = gistPlays[i];
 
+    let playTypeEqual = false;
+    if (playType) {
+      playTypeEqual = playType === gistPlay.playType;
+    } else {
+      playTypeEqual = true;
+    }
+
     let numbersEqual = false;
     if (offNum === null || defNum === null) {
       numbersEqual = true;
@@ -89,16 +96,31 @@ const findMatchingGist = function findMatchingGist(
       numbersEqual = (offNum === gistPlay.offense.number && defNum === gistPlay.defense.number);
     }
 
-    const locationEqual = (location === gistPlay.yardLine
-      || (100 - location) === gistPlay.yardLine);
+    let locationEqual = false;
+    if (
+      (location === gistPlay.yardLine
+      || (100 - location) === gistPlay.yardLine)
+    ) {
+      locationEqual = true;
+    } else if (
+      (i - 1 >= 0)
+      && gistPlays[i - 1].result === 'SAFETY'
+      && (location === 35 || location === 65)
+      && (gistPlay.yardLine === 20 || gistPlay.yardLine === 80)
+    ) {
+      // Match a kickoff after a safety
+      locationEqual = true;
+    }
 
-    if (playType === gistPlay.playType
+    if (playTypeEqual
       && numbersEqual
       && locationEqual
       && homeOffense === gistPlay.homeOffense) {
       return gistPlay;
     }
   }
+  // eslint-disable-next-line prefer-rest-params
+  console.log(playType, offNum, defNum, location, homeOffense);
   return false;
 };
 
@@ -275,6 +297,7 @@ const parsePlayComment = function parsePlayComment(
   play.down = gistMatch.down;
   play.distance = gistMatch.distance;
   play.yardLine = gistMatch.yardLine;
+  play.playType = gistMatch.playType;
 
   if (offNum !== null && defNum !== null) {
     play.offense.number = offNum;
