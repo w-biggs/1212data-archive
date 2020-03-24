@@ -3,27 +3,50 @@
 /**
  * Find the play type from the comment body.
  * @param {String} commentBody The body of the comment to search
+ * @param {Boolean} isKick If the play is a kick play
+ * @param {Boolean} isConv If the play is a conversion play
  */
-const findPlayType = function findPlayTypeFromCommentBody(commentBody) {
-  const playTypes = [
+const findPlayType = function findPlayTypeFromCommentBody(commentBody, isKick, isConv) {
+  let playTypes = [
     ['run', 'RUN'],
     ['pass', 'PASS'],
     ['punt', 'PUNT'],
     ['field goal', 'FIELD_GOAL'],
     ['kneel', 'KNEEL'],
     ['spike', 'SPIKE'],
-    ['two point', 'TWO_POINT'],
-    ['pat', 'PAT'],
-    ['normal', 'KICKOFF_NORMAL'],
-    ['squib', 'KICKOFF_SQUIB'],
-    ['onside', 'KICKOFF_ONSIDE'],
   ];
+
+  if (isKick) {
+    playTypes = [
+      ['normal', 'KICKOFF_NORMAL'],
+      ['squib', 'KICKOFF_SQUIB'],
+      ['onside', 'KICKOFF_ONSIDE'],
+    ];
+  } else if (isConv) {
+    playTypes = [
+      ['kneel', 'KNEEL'],
+      ['two point', 'TWO_POINT'],
+      ['pat', 'PAT'],
+    ];
+  }
+
+  const matches = [];
 
   for (let i = 0; i < playTypes.length; i += 1) {
     const playType = playTypes[i];
-    if (commentBody.toLowerCase().includes(playType[0])) {
-      return playType[1];
+    const playTypeMatch = commentBody.toLowerCase().indexOf(playType[0]);
+    if (playTypeMatch >= 0) {
+      matches.push({
+        playType,
+        pos: playTypeMatch,
+      });
     }
+  }
+
+  // Find the earliest play type in the comment
+  if (matches.length) {
+    matches.sort((a, b) => a.pos - b.pos);
+    return matches[0].playType[1];
   }
 
   // console.error(`No play type found for play "${commentBody}"`);
@@ -268,12 +291,15 @@ const parsePlayComment = function parsePlayComment(
     }
   }
 
-  const playType = findPlayType(parentComment.body);
+  const isKick = comment.body.indexOf('KICKOFF') > 0;
+  const isConv = comment.body.indexOf('CONVERSION') > 0;
+
+  const playType = findPlayType(parentComment.body, isKick, isConv);
 
   let location = 0;
-  if (comment.body.indexOf('KICKOFF') > 0) {
+  if (isKick) {
     location = 35;
-  } else if (comment.body.indexOf('CONVERSION') > 0) {
+  } else if (isConv) {
     location = 3;
   } else {
     const locationRegex = /on the.+?([0-9]+)\./gm;
