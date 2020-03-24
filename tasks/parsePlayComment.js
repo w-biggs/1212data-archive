@@ -271,7 +271,7 @@ const parsePlayComment = function parsePlayComment(
     }
   } else {
     if (!nextComment || !parentComment) {
-      return false; // Ignore this play.
+      return null; // Ignore this play.
     }
     console.log(`No result comment found for play ${comment.id}.`);
     timeRegex.lastIndex = 0;
@@ -337,6 +337,9 @@ const parsePlayComment = function parsePlayComment(
 
   const gistMatch = findMatchingGist(playType, offNum, defNum, location, homeOffense, gistPlays);
   if (!gistMatch) {
+    if (!resultComment) {
+      return null; // Skip it - this must not be a valid play.
+    }
     throw new Error(`No gist match found for play ${comment.id}`);
   }
   play.result = gistMatch.result;
