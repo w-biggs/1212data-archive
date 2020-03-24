@@ -1,29 +1,4 @@
-/**
- * Finds the result comment. Returns false if there is none.
- * @param {Object} comment The comment to find the result comment from.
- * @param {Object} parentComment The parent comment.
- */
-const findResultComments = function findResultComments(comment, parentComment) {
-  // Check if is a result comment
-  // End of regulation just says "In the 5th."
-  if (comment.body.indexOf('has submitted') === -1
-    && (comment.body.indexOf('left in the') >= 0 || comment.body.indexOf('In the') > 0)) {
-    return {
-      resultComment: comment,
-      parentComment,
-    };
-  }
-  if (comment.replies && comment.replies.length) {
-    for (let i = 0; i < comment.replies.length; i += 1) {
-      const reply = comment.replies[i];
-      const replyCheck = findResultComments(reply, comment);
-      if (replyCheck !== false) {
-        return replyCheck;
-      }
-    }
-  }
-  return false;
-};
+
 
 /**
  * Find the play type from the comment body.
@@ -51,8 +26,45 @@ const findPlayType = function findPlayTypeFromCommentBody(commentBody) {
     }
   }
 
-  console.error(`No play type found for play "${commentBody}"`);
+  // console.error(`No play type found for play "${commentBody}"`);
   return false; // No play type found
+};
+
+/**
+ * Finds the result comment. Returns false if there is none.
+ * @param {Object} comment The comment to find the result comment from.
+ * @param {Object} parentComment The parent comment.
+ */
+const findResultComments = function findResultComments(comment, parentComment) {
+  // Check if is a result comment
+  // End of regulation just says "In the 5th."
+  if (comment.body.indexOf('has submitted') === -1
+    && (comment.body.indexOf('left in the') >= 0 || comment.body.indexOf('In the') > 0)) {
+    return {
+      resultComment: comment,
+      parentComment,
+    };
+  }
+  if (comment.replies && comment.replies.length) {
+    // First look for ones with result comments
+    for (let i = 0; i < comment.replies.length; i += 1) {
+      const reply = comment.replies[i];
+      const replyCheck = findResultComments(reply, comment);
+      if (replyCheck !== false) {
+        return replyCheck;
+      }
+    }
+    // If no result comments exist, look for the first valid play
+    for (let i = 0; i < comment.replies.length; i += 1) {
+      const reply = comment.replies[i];
+      if (findPlayType(reply.body) !== false) {
+        return {
+          parentComment: reply,
+        };
+      }
+    }
+  }
+  return false;
 };
 
 /**
@@ -137,21 +149,12 @@ const parsePlayCoaches = function parsePlayCoaches(comment, parentComment, homeT
  * @param {Object} homeTeam The home team info
  * @param {Object} awayTeam The away team info
  * @param {Object[]} gistPlays The list of plays from the gist
+ * @param {Object} comment The next comment, for plays with missing result comments
  */
-const parsePlayComment = function parsePlayComment(comment, homeTeam, awayTeam, gistPlays) {
+const parsePlayComment = function parsePlayComment(
+  comment, homeTeam, awayTeam, gistPlays, nextComment,
+) {
   const { resultComment, parentComment } = findResultComments(comment, null);
-  if (!resultComment) {
-    console.log(comment.body);
-    console.log(comment.author);
-    throw new Error('No result comment found');
-  }
-
-  const numbersRegex = /Offense: ([0-9]+)\n+Defense: ([0-9]+)/gm;
-  const numbersMatch = numbersRegex.exec(resultComment.body);
-  let [offNum, defNum] = [null, null];
-  if (numbersMatch) {
-    [, offNum, defNum] = numbersMatch;
-  }
 
   let quarter = 0;
   let clock = 0;
@@ -163,30 +166,63 @@ const parsePlayComment = function parsePlayComment(comment, homeTeam, awayTeam, 
   } else {
     const quarterRegex = /[i|I]n the ([0-9]+)/;
     const quarterMatch = quarterRegex.exec(comment.body);
+    console.log(comment.body);
     quarter = parseInt(quarterMatch[1], 10);
   }
 
-  const secondsRegex = /took ([0-9]+) seconds/gm;
-  const secondsMatch = secondsRegex.exec(resultComment.body);
+  let [offNum, defNum] = [null, null];
   let playLength = 0;
-  if (!secondsMatch) {
-    timeRegex.lastIndex = 0;
-    const newTimeMatch = timeRegex.exec(resultComment.body);
-    if (newTimeMatch) {
-      const [, newMins, newSecs] = newTimeMatch;
-      const newClock = (parseInt(newMins, 10) * 60) + parseInt(newSecs, 10);
-      if ((clock - newClock) < 0) {
-        if (newClock === 420) {
-          playLength = clock;
+
+  if (resultComment) {
+    // Play numbers
+    const numbersRegex = /Offense: ([0-9]+)\n+Defense: ([0-9]+)/gm;
+    const numbersMatch = numbersRegex.exec(resultComment.body);
+    if (numbersMatch) {
+      [, offNum, defNum] = numbersMatch.map(num => parseInt(num, 10));
+    }
+
+    // Play length
+    const secondsRegex = /took ([0-9]+) seconds/gm;
+    const secondsMatch = secondsRegex.exec(resultComment.body);
+    if (!secondsMatch) {
+      timeRegex.lastIndex = 0;
+      const newTimeMatch = timeRegex.exec(resultComment.body);
+      if (newTimeMatch) {
+        const [, newMins, newSecs] = newTimeMatch;
+        const newClock = (parseInt(newMins, 10) * 60) + parseInt(newSecs, 10);
+        if ((clock - newClock) < 0) {
+          if (newClock === 420) {
+            playLength = clock;
+          } else {
+            throw new Error(`Weird time issue: old clock is ${clock}, new clock is ${newClock}.`);
+          }
         } else {
-          throw new Error(`Weird time issue: old clock is ${clock}, new clock is ${newClock}.`);
+          playLength = clock - newClock;
         }
-      } else {
-        playLength = clock - newClock;
       }
+    } else {
+      playLength = parseInt(secondsMatch[1], 10);
     }
   } else {
-    playLength = parseInt(secondsMatch[1], 10);
+    if (!nextComment) {
+      throw new Error(`No result comment or next comment found for ${comment.id}`);
+    }
+    console.log(`No result comment found for play ${comment.id}.`);
+    timeRegex.lastIndex = 0;
+    const nextTimeMatch = timeRegex.exec(nextComment.body);
+    if (nextTimeMatch) {
+      const [, nextMins, nextSecs] = nextTimeMatch;
+      const nextClock = (parseInt(nextMins, 10) * 60) + parseInt(nextSecs, 10);
+      if ((clock - nextClock) < 0) {
+        if (nextClock === 420) {
+          playLength = clock;
+        } else {
+          throw new Error(`Weird time issue: old clock is ${clock}, next clock is ${nextClock}.`);
+        }
+      } else {
+        playLength = clock - nextClock;
+      }
+    }
   }
 
   const playType = findPlayType(parentComment.body);
@@ -231,6 +267,9 @@ const parsePlayComment = function parsePlayComment(comment, homeTeam, awayTeam, 
   };
 
   const gistMatch = findMatchingGist(playType, offNum, defNum, location, homeOffense, gistPlays);
+  if (!gistMatch) {
+    throw new Error(`No gist match found for play ${comment.id}`);
+  }
   play.result = gistMatch.result;
   play.yards = gistMatch.yards;
   play.down = gistMatch.down;
@@ -238,8 +277,11 @@ const parsePlayComment = function parsePlayComment(comment, homeTeam, awayTeam, 
   play.yardLine = gistMatch.yardLine;
 
   if (offNum !== null && defNum !== null) {
-    play.offense.number = parseInt(offNum, 10);
-    play.defense.number = parseInt(defNum, 10);
+    play.offense.number = offNum;
+    play.defense.number = defNum;
+  } else if (!Number.isNaN(gistMatch.offense.number) && !Number.isNaN(gistMatch.defense.number)) {
+    play.offense.number = gistMatch.offense.number;
+    play.defense.number = gistMatch.defense.number;
   }
 
   return play;

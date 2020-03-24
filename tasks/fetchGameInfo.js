@@ -124,14 +124,22 @@ const parseGameJson = function parseGameJson(gameJson, gameId) {
     live: !(postBody.indexOf('Game complete') >= 0),
   };
 
+  let homeCoach = '';
+  let awayCoach = '';
+
   /**
    * Benchmarked this - multiple small regexes is twice as fast.
    */
-  const teamInfoRegex = /Defense\n.*\n\[(.+)\].+\|(.+)\|(.+)\n\[(.+)\].+\|(.+)\|(.+)/gm;
+  const teamInfoRegex = /Defense\n.*\n\[(.+)\].+\|(\/u\/.+)\|(.+)\|(.+)\n\[(.+)\].+\|(\/u\/.+)\|(.+)\|(.+)/gm;
   const teamInfoMatch = teamInfoRegex.exec(postBody);
   if (teamInfoMatch) {
-    [, gameObj.awayTeam.team, gameObj.awayTeam.offense, gameObj.awayTeam.defense,
-      gameObj.homeTeam.team, gameObj.homeTeam.offense, gameObj.homeTeam.defense] = teamInfoMatch;
+    [, gameObj.awayTeam.team, awayCoach, gameObj.awayTeam.offense,
+      gameObj.awayTeam.defense,
+      gameObj.homeTeam.team, homeCoach, gameObj.homeTeam.offense,
+      gameObj.homeTeam.defense] = teamInfoMatch;
+    
+    gameObj.homeTeam.coaches = homeCoach.split(' and ').map(coach => ({ name: coach, plays: 0 }));
+    gameObj.awayTeam.coaches = awayCoach.split(' and ').map(coach => ({ name: coach, plays: 0 }));
   } else {
     // Filters out things like "RESTARTED - NEXT SCORE WINS South Dakota"
     const oldTeamInfoRegex = /\[GAME THREAD\] (?:#[0-9]+ )?(?:\(.+\) )?(?:.+[A-Z]{4,} )?(.+) @ (?:#[0-9]+ )?(?:\(.+\) )?(?:.+[A-Z]{4,} )?(.+)/;
@@ -221,7 +229,6 @@ const fillPlayRefs = function fillPlayCoachRefs(gameObj) {
   if (gameObj.plays) {
     const filledPlays = [];
     for (let i = 0; i < gameObj.plays.length; i += 1) {
-      console.log(`Doing play ${i}`);
       const play = gameObj.plays[i];
   
       /**

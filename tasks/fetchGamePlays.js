@@ -137,10 +137,10 @@ const parseGist = function parseGist(gistContent, gistFormat) {
       plays.push({
         homeOffense: (cols[4].trim() === 'home'),
         offense: {
-          number: offNum,
+          number: parseInt(offNum, 10),
         },
         defense: {
-          number: defNum,
+          number: parseInt(defNum, 10),
         },
         playType: playType.replace('Play.', ''),
         result: result.replace('Result.', ''),
@@ -174,63 +174,66 @@ const fetchInfoFromComments = function fetchInfoFromComments(
     away: [],
   };
   const { comments } = gameJson;
-  comments.sort((a, b) => a.created - b.created); // Make it oldest to newest
-  // fs.writeFile('test.json', JSON.stringify(comments, null, 2), err => console.error(err));
-  for (let i = 0; i < comments.length; i += 1) {
-    const comment = comments[i];
-    // If is a play comment
-    if (
-      comment.body.indexOf('has submitted') >= 0
-      && comment.author.name.toLowerCase() === 'nfcaaofficialrefbot'
-      && comment.replies
-      && comment.replies.length > 0
-    ) {
-      const play = gistPlays
-        ? parsePlayComment(comment, homeTeam, awayTeam, gistPlays)
-        : parsePlayCoaches(comment, null, homeTeam, awayTeam);
-      
-      if (play) {
-        const offCoach = gistPlays ? play.offense.coach : play.offCoach;
-        const defCoach = gistPlays ? play.defense.coach : play.defCoach;
-        
-        const homeCoaches = play.homeOffense ? [offCoach] : defCoach;
-        const awayCoaches = play.homeOffense ? defCoach : [offCoach];
   
-        // Get home coaches
-        for (let j = 0; j < homeCoaches.length; j += 1) {
-          let foundHome = false;
-          for (let k = 0; k < teamCoaches.home.length; k += 1) {
-            if (teamCoaches.home[k].name === homeCoaches[j]) {
-              foundHome = true;
-              teamCoaches.home[k].plays += 1;
-            }
-          }
-          if (!foundHome) {
-            teamCoaches.home.push({
-              name: homeCoaches[j],
-              plays: 1,
-            });
+  // Make it oldest to newest
+  comments.sort((a, b) => a.created - b.created);
+
+  // Filter out non-play-comments
+  const filteredComments = comments.filter(comment => (
+    comment.body.indexOf('has submitted') >= 0
+    && comment.author.name.toLowerCase() === 'nfcaaofficialrefbot'
+    && comment.replies
+    && comment.replies.length > 0
+  ));
+
+  for (let i = 0; i < filteredComments.length; i += 1) {
+    const comment = filteredComments[i];
+    const nextComment = (i + 1) < filteredComments.length ? filteredComments[i + 1] : null;
+    const play = gistPlays
+      ? parsePlayComment(comment, homeTeam, awayTeam, gistPlays, nextComment)
+      : parsePlayCoaches(comment, null, homeTeam, awayTeam);
+    
+    if (play) {
+      const offCoach = gistPlays ? play.offense.coach : play.offCoach;
+      const defCoach = gistPlays ? play.defense.coach : play.defCoach;
+      
+      const homeCoaches = play.homeOffense ? [offCoach] : defCoach;
+      const awayCoaches = play.homeOffense ? defCoach : [offCoach];
+
+      // Get home coaches
+      for (let j = 0; j < homeCoaches.length; j += 1) {
+        let foundHome = false;
+        for (let k = 0; k < teamCoaches.home.length; k += 1) {
+          if (teamCoaches.home[k].name === homeCoaches[j]) {
+            foundHome = true;
+            teamCoaches.home[k].plays += 1;
           }
         }
-        // Get away coaches
-        for (let j = 0; j < awayCoaches.length; j += 1) {
-          let foundAway = false;
-          for (let k = 0; k < teamCoaches.away.length; k += 1) {
-            if (teamCoaches.away[k].name === awayCoaches[j]) {
-              foundAway = true;
-              teamCoaches.away[k].plays += 1;
-            }
-          }
-          if (!foundAway) {
-            teamCoaches.away.push({
-              name: awayCoaches[j],
-              plays: 1,
-            });
+        if (!foundHome) {
+          teamCoaches.home.push({
+            name: homeCoaches[j],
+            plays: 1,
+          });
+        }
+      }
+      // Get away coaches
+      for (let j = 0; j < awayCoaches.length; j += 1) {
+        let foundAway = false;
+        for (let k = 0; k < teamCoaches.away.length; k += 1) {
+          if (teamCoaches.away[k].name === awayCoaches[j]) {
+            foundAway = true;
+            teamCoaches.away[k].plays += 1;
           }
         }
-        if (gistPlays) {
-          plays.push(play);
+        if (!foundAway) {
+          teamCoaches.away.push({
+            name: awayCoaches[j],
+            plays: 1,
+          });
         }
+      }
+      if (gistPlays) {
+        plays.push(play);
       }
     }
   }
