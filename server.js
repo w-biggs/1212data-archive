@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
 const fs = require('fs');
 const addOldGames = require('./old_data/oldGames');
+const checkModifiedGames = require('./old_data/checkModifiedGames');
+// const fetchGameInfo = require('./tasks/fetchGameInfo');
 // const { addGame } = require('./tasks/addGame');
 
 /* Connect to MongoDB */
@@ -28,12 +30,23 @@ db.once('open', () => {
   console.log('Connected!');
 
   addOldGames()
+    .catch(console.error)
+    .then((oldGames) => {
+      writeDebug(oldGames);
+      checkModifiedGames()
+        .catch(console.error)
+        .then(console.log);
+    });
+  
+  
+  /* fetchGameInfo('9y7gtc')
     .catch((error) => {
+      console.error(`Error in game ${'9y7gtc'}.`);
       console.error(error);
+      process.exit();
     })
-    .then(writeDebug);
-
-  /* addGame('fluajk')
-    .catch(err => err && console.error(err))
-    .then(writeDebug); */
+    .then((gameInfo) => {
+      console.log(`Adding game ${'9y7gtc'}.`);
+      return addGame(gameInfo, 1, 0);
+    }); */
 });

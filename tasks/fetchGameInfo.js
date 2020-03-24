@@ -321,10 +321,22 @@ const fillGameRefs = function fillGameRefs(parsedGame) {
     });
 };
 
+/**
+ * Fetch a game's information and parse it
+ * @param {String} gameId The game's Reddit post ID
+ */
 const fetchGameInfo = function fetchAndParseGameInfo(gameId) {
-  reddit.config({ requestDelay: 1000 }); // Rate limits...
+  // reddit.config({ requestDelay: 1000 }); // Rate limits...
   return reddit.getSubmission(gameId).fetch()
+    .then((response) => {
+      console.log(`Fetched ${gameId}`);
+      return response;
+    })
     .expandReplies({ limit: Infinity, depth: Infinity })
+    .then((response) => {
+      console.log(`Expanded replies for ${gameId}`);
+      return response;
+    })
     .then(response => parseGameJson(response, gameId))
     .then(parsedGame => fillGameRefs(parsedGame))
     .catch((error) => {
