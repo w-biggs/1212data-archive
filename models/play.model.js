@@ -45,7 +45,7 @@ const playSchema = new Schema({
       'SAFETY', 'INCOMPLETE', 'TURNOVER', 'KNEEL', 'SPIKE',
       'TWO_POINT', 'PAT', 'KICKOFF', 'TURNOVER_PAT',
       'TURNOVER_TOUCHDOWN', 'FIELD_GOAL', 'MISS', 'PUNT',
-      'NONE'],
+      'None'],
   }, // Final "Result.XXXX" in play list
   yards: {
     type: Number,
