@@ -205,7 +205,7 @@ const parsePlayComment = function parsePlayComment(
     }
   } else {
     if (!nextComment) {
-      throw new Error(`No result comment or next comment found for ${comment.id}`);
+      return false; // Ignore this play.
     }
     console.log(`No result comment found for play ${comment.id}.`);
     timeRegex.lastIndex = 0;
