@@ -6,6 +6,7 @@ const Team = require('../models/teams/team.model');
 const Coach = require('../models/coach.model');
 const config = require('../.config');
 const fetchGamePlays = require('./fetchGamePlays');
+const { fixTeamHtmlEntities } = require('./utils');
 
 const reddit = new Snoowrap(config);
 
@@ -146,6 +147,10 @@ const parseGameJson = function parseGameJson(gameJson, gameId) {
     const oldTeamInfoMatch = oldTeamInfoRegex.exec(gameJson.title);
     [, gameObj.awayTeam.team, gameObj.homeTeam.team] = oldTeamInfoMatch;
   }
+
+  // Fix HTML entities
+  gameObj.homeTeam.team = fixTeamHtmlEntities(gameObj.homeTeam.team);
+  gameObj.awayTeam.team = fixTeamHtmlEntities(gameObj.awayTeam.team);
 
   let playsLink = '';
   const playsLinkRegex = /\[Plays\]\((.+)\)/gm;

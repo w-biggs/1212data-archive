@@ -1,4 +1,4 @@
-
+const { fixTeamHtmlEntities } = require('./utils');
 
 /**
  * Find the play type from the comment body.
@@ -182,7 +182,7 @@ const parsePlayCoaches = function parsePlayCoaches(comment, parentComment, homeT
   // Have to include "number" or else "Stephen F. Austin", for example, breaks this
   const offenseTeamRegex = /number\. (.+) you're up/gm;
   const offenseTeamMatch = offenseTeamRegex.exec(comment.body);
-  const homeOffense = (offenseTeamMatch[1] === homeTeam.team);
+  const homeOffense = (fixTeamHtmlEntities(offenseTeamMatch[1]) === homeTeam.team);
 
   const defCoach = [];
   if (homeOffense) {
