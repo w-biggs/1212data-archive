@@ -159,7 +159,7 @@ const parsePlayComment = function parsePlayComment(comment, homeTeam, awayTeam, 
   const timeMatch = timeRegex.exec(resultComment.body);
   if (timeMatch) {
     clock = (parseInt(timeMatch[1], 10) * 60) + parseInt(timeMatch[2], 10);
-    quarter = parseInt(quarter[3], 10);
+    quarter = parseInt(timeMatch[3], 10);
   } else {
     const quarterRegex = /[i|I]n the ([0-9]+)/;
     const quarterMatch = quarterRegex.exec(resultComment.body);
@@ -205,7 +205,10 @@ const parsePlayComment = function parsePlayComment(comment, homeTeam, awayTeam, 
 
   const { offCoach, defCoach, homeOffense } = playCoaches;
 
+  const commentId = comment.id;
+
   const play = {
+    commentId,
     homeOffense,
     offense: {
       coach: offCoach,
