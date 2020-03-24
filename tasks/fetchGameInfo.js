@@ -326,7 +326,7 @@ const fillGameRefs = function fillGameRefs(parsedGame) {
  * @param {String} gameId The game's Reddit post ID
  */
 const fetchGameInfo = function fetchAndParseGameInfo(gameId) {
-  // reddit.config({ requestDelay: 1000 }); // Rate limits...
+  reddit.config({ requestDelay: 1000 }); // Rate limits...
   return reddit.getSubmission(gameId).fetch()
     .then((response) => {
       console.log(`Fetched ${gameId}`);
