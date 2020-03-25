@@ -115,15 +115,22 @@ const findResultComments = function findResultComments(comment, parentComment) {
  * @param {Number} location The play location
  * @param {Boolean} homeOffense Whether the home team is on offense or not
  * @param {Object[]} gistPlays The list of plays from the gist
+ * @param {String} commentId The comment's ID
  */
 const findMatchingGist = function findMatchingGist(
-  playType, offNum, defNum, location, homeOffense, gistPlays,
+  playType, offNum, defNum, location, homeOffense, gistPlays, commentId,
 ) {
   for (let i = 0; i < gistPlays.length; i += 1) {
     const gistPlay = gistPlays[i];
 
     let playTypeEqual = false;
-    if (playType) {
+    // Sometimes this is all I can do.
+    const playExceptions = [
+      'exr3x2p',
+    ];
+    if (playExceptions.includes(commentId)) {
+      playTypeEqual = true;
+    } else if (playType) {
       playTypeEqual = playType === gistPlay.playType;
     } else {
       playTypeEqual = true;
@@ -336,7 +343,9 @@ const parsePlayComment = function parsePlayComment(
     playLength,
   };
 
-  const gistMatch = findMatchingGist(playType, offNum, defNum, location, homeOffense, gistPlays);
+  const gistMatch = findMatchingGist(
+    playType, offNum, defNum, location, homeOffense, gistPlays, commentId,
+  );
   if (!gistMatch) {
     if (!resultComment) {
       return null; // Skip it - this must not be a valid play.
