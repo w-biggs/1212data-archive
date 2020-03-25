@@ -30,7 +30,10 @@ db.once('open', () => {
   console.log('Connected!');
 
   addOldGames()
-    .catch(console.error)
+    .catch((error) => {
+      console.error(error);
+      process.exit();
+    })
     .then((oldGames) => {
       writeDebug(oldGames);
       checkModifiedGames()
