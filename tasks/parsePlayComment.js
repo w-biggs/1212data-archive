@@ -62,7 +62,10 @@ const findResultComments = function findResultComments(comment, parentComment) {
   // Check if is a result comment
   // End of regulation just says "In the 5th."
   if (comment.body.indexOf('has submitted') === -1
-    && (comment.body.indexOf('left in the') >= 0 || comment.body.indexOf('In the') > 0)
+    && (comment.body.indexOf('left in the') >= 0
+      || comment.body.indexOf('In the') > 0
+      || comment.body.indexOf('In overtime.') > 0
+    )
     && comment.author.name.toLowerCase() === 'nfcaaofficialrefbot') {
     return {
       resultComment: comment,
@@ -127,6 +130,7 @@ const findMatchingGist = function findMatchingGist(
     // Sometimes this is all I can do.
     const playExceptions = [
       'exr3x2p',
+      'f27pvvm',
     ];
     if (playExceptions.includes(commentId)) {
       playTypeEqual = true;
@@ -218,7 +222,7 @@ const parsePlayCoaches = function parsePlayCoaches(comment, parentComment, homeT
  * @param {Object} homeTeam The home team info
  * @param {Object} awayTeam The away team info
  * @param {Object[]} gistPlays The list of plays from the gist
- * @param {Object} comment The next comment, for plays with missing result comments
+ * @param {Object} nextComment The next comment, for plays with missing result comments
  */
 const parsePlayComment = function parsePlayComment(
   comment, homeTeam, awayTeam, gistPlays, nextComment,
@@ -232,15 +236,26 @@ const parsePlayComment = function parsePlayComment(
   if (timeMatch) {
     clock = (parseInt(timeMatch[1], 10) * 60) + parseInt(timeMatch[2], 10);
     quarter = parseInt(timeMatch[3], 10);
+  } else if (comment.body.indexOf('overtime') >= 0) {
+    // S2W12+
+    const overtimeRegex = /[i|I]n (?:the )?([0-9]+|overtime)/;
+    const overtimeMatch = overtimeRegex.exec(comment.body);
+    let overtime = 1;
+    if (overtimeMatch[1] !== 'overtime') {
+      overtime = parseInt(overtimeMatch[1], 10);
+    }
+    console.log(`Overtime ${overtime}`);
+    quarter = 4 + overtime;
   } else {
     const quarterRegex = /[i|I]n the ([0-9]+)/;
     const quarterMatch = quarterRegex.exec(comment.body);
-    console.log(comment.body);
     quarter = parseInt(quarterMatch[1], 10);
   }
 
   let [offNum, defNum] = [null, null];
   let playLength = 0;
+
+  const commentId = comment.id;
 
   if (resultComment) {
     // Play numbers
@@ -267,7 +282,7 @@ const parsePlayComment = function parsePlayComment(
             if (newClock === 420) {
               playLength = clock;
             } else {
-              throw new Error(`Weird time issue: old clock is ${clock}, new clock is ${newClock}.`);
+              throw new Error(`Weird time issue in play ${commentId}: old clock is ${clock}, new clock is ${newClock}.`);
             }
           } else {
             playLength = clock - newClock;
@@ -325,8 +340,6 @@ const parsePlayComment = function parsePlayComment(
   }
 
   const { offCoach, defCoach, homeOffense } = playCoaches;
-
-  const commentId = comment.id;
 
   const play = {
     commentId,

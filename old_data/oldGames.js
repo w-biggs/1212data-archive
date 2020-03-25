@@ -9,7 +9,7 @@ const Game = require('../models/schedules/game.model');
 const addOldGames = async function addOldGames() {
   const addedGames = [];
   
-  for (let i = 0; i < /* games.seasons.length */ 1; i += 1) {
+  for (let i = 0; i < games.seasons.length; i += 1) {
     const season = games.seasons[i];
     console.log(`Season ${season.seasonNo}`);
     for (let j = 0; j < season.weeks.length; j += 1) {
