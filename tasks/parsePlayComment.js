@@ -62,7 +62,8 @@ const findResultComments = function findResultComments(comment, parentComment) {
   // Check if is a result comment
   // End of regulation just says "In the 5th."
   if (comment.body.indexOf('has submitted') === -1
-    && (comment.body.indexOf('left in the') >= 0 || comment.body.indexOf('In the') > 0)) {
+    && (comment.body.indexOf('left in the') >= 0 || comment.body.indexOf('In the') > 0)
+    && comment.author.name.toLowerCase() === 'nfcaaofficialrefbot') {
     return {
       resultComment: comment,
       parentComment,
@@ -340,6 +341,7 @@ const parsePlayComment = function parsePlayComment(
     if (!resultComment) {
       return null; // Skip it - this must not be a valid play.
     }
+    console.log(resultComment.body);
     throw new Error(`No gist match found for play ${comment.id}`);
   }
   play.result = gistMatch.result;
