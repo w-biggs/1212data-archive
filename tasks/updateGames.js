@@ -16,7 +16,8 @@ const updateGames = async function updateCurrentWeekGames(seasonNo, weekNo) {
           // eslint-disable-next-line no-await-in-loop
           const updatedGame = await fetchGameInfo(week.games[i].gameId, false, false)
             .then(gameInfo => addGame(gameInfo, seasonNo, weekNo));
-            // eslint-disable-next-line no-await-in-loop
+
+          // eslint-disable-next-line no-await-in-loop
           const populatedGame = await updatedGame
             .populate('homeTeam.team')
             .populate('awayTeam.team')

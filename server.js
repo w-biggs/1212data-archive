@@ -55,8 +55,11 @@ mongoose.connect('mongodb://127.0.0.1:27017/1212', {
     const app = express();
 
     app.use((req, res, next) => {
-      res.header('Access-Control-Allow-Origin', 'http://localhost:3000/');
-      next();
+      const origins = ['http://localhost:3000/', 'https://1212.one/'];
+      if (origins.indexOf(req.headers.origin) >= 0) {
+        res.header('Access-Control-Allow-Origin', req.headers.origin);
+      }
+      return next();
     });
 
     app.get('/games/:seasonNo/:weekNo/', async (req, res) => {
