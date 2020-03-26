@@ -5,6 +5,7 @@ const fetchGameInfo = require('../tasks/fetchGameInfo');
 
 const updateGames = async function updateCurrentWeekGames(seasonNo, weekNo) {
   console.log('Starting game update.');
+  const updateStart = Date.now();
   const season = await Season.findOne({ seasonNo });
   if (season) {
     const week = await Week.findOne({ season: season._id, weekNo }).populate('season');
@@ -23,7 +24,7 @@ const updateGames = async function updateCurrentWeekGames(seasonNo, weekNo) {
           week.games[i] = populatedGame;
         }
       }
-      console.log('Updated games.');
+      console.log(`Updated games. Took ${(Date.now() - updateStart) / 1000} seconds.`);
       return true;
     }
     throw new Error(`Week ${weekNo} not found.`);
