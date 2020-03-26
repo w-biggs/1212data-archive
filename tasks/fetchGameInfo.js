@@ -1,14 +1,10 @@
 /**
  * Gets the game's info from Reddit and outputs the data needed for the database
  */
-const Snoowrap = require('snoowrap');
 const Team = require('../models/teams/team.model');
 const Coach = require('../models/coach.model');
-const config = require('../.config');
 const fetchGamePlays = require('./fetchGamePlays');
-const { fixTeamHtmlEntities } = require('./utils');
-
-const reddit = new Snoowrap(config);
+const { fixTeamHtmlEntities, fetchGameJson } = require('./utils');
 
 /**
  * Get stats from the game
@@ -165,7 +161,7 @@ const parseGameJson = function parseGameJson(gameJson, gameId) {
   gameObj.awayTeam.stats = gameStats.awayStats;
 
   // Status
-  const statusRegex = /([0-9]+):([0-9]+)\|([0-9]+)\|([0-9]+).+ & ([0-9]+|goal)\|([-0-9]+)(?: \[(.+?)\])?.+?\[(.+?)\]/;
+  const statusRegex = /([0-9]+):([0-9]+)\|([0-9]+)\|([0-9]+).+ (?:&|&amp;) ([0-9]+|goal)\|([-0-9]+)(?: \[(.+?)\])?.+?\[(.+?)\]/;
   const statusMatch = statusRegex.exec(postBody);
   const [, min, sec, quarter, down, distance, location, side, possession] = statusMatch;
   const fixedLocation = Math.max(location, 0);
@@ -174,10 +170,10 @@ const parseGameJson = function parseGameJson(gameJson, gameId) {
   gameObj.status.quarter = parseInt(quarter, 10);
   gameObj.status.down = parseInt(down, 10);
   gameObj.status.distance = distance === 'goal' ? parseInt(fixedLocation, 10) : parseInt(distance, 10);
-  gameObj.status.yardLine = side && (fixTeamHtmlEntities(side) === gameObj.awayTeam.team)
+  gameObj.status.yardLine = side && (fixTeamHtmlEntities(side) === gameObj.homeTeam.team)
     ? 100 - parseInt(fixedLocation, 10)
     : parseInt(fixedLocation, 10);
-  gameObj.status.homeOffense = (fixTeamHtmlEntities(possession) === gameObj.awayTeam.team);
+  gameObj.status.homeOffense = (fixTeamHtmlEntities(possession) === gameObj.homeTeam.team);
 
   return fetchGamePlays(playsLink, gameJson, gameObj.homeTeam, gameObj.awayTeam)
     .catch((error) => {
@@ -355,17 +351,9 @@ const fillGameRefs = function fillGameRefs(parsedGame) {
  * @param {Boolean} expand Whether to expand replies
  * @param {Boolean} limit Whether to rate limit
  */
+// eslint-disable-next-line no-unused-vars
 const fetchGameInfo = async function fetchAndParseGameInfo(gameId, expand = true, limit = true) {
-  if (limit) {
-    reddit.config({ requestDelay: 1000 }); // Rate limits...
-  }
-  let response = null;
-  if (expand) {
-    response = await reddit.getSubmission(gameId).fetch()
-      .expandReplies({ limit: Infinity, depth: Infinity });
-  } else {
-    response = await reddit.getSubmission(gameId).fetch();
-  }
+  const response = await fetchGameJson(gameId);
   // console.log(`Fetched ${gameId}`);
   const parsedGame = await parseGameJson(response, gameId);
   return fillGameRefs(parsedGame);

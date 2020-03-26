@@ -183,12 +183,17 @@ const fetchInfoFromComments = function fetchInfoFromComments(
   comments.sort((a, b) => a.created - b.created);
 
   // Filter out non-play-comments
-  const filteredComments = comments.filter(comment => (
-    comment.body.indexOf('has submitted') >= 0
-    && comment.author.name.toLowerCase() === 'nfcaaofficialrefbot'
-    && comment.replies
-    && comment.replies.length > 0
-  ));
+  const filteredComments = comments.filter((comment) => {
+    if (!comment.body) {
+      console.log(comment);
+    }
+    return (
+      comment.body.indexOf('has submitted') >= 0
+      && comment.author.toLowerCase() === 'nfcaaofficialrefbot'
+      && comment.replies
+      && comment.replies.length > 0
+    );
+  });
 
   for (let i = 0; i < filteredComments.length; i += 1) {
     const comment = filteredComments[i];

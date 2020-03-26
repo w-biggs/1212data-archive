@@ -78,7 +78,7 @@ mongoose.connect('mongodb://127.0.0.1:27017/1212', {
       }
     });
 
-    const PORT = process.env.PORT || 1212;
+    const PORT = process.env.PORT || 12121;
     app.listen(PORT, () => {
       console.log(`App is listening to ${PORT}...`);
       console.log(`env: ${app.get('env')}`);

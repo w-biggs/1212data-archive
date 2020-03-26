@@ -66,7 +66,7 @@ const findResultComments = function findResultComments(comment, parentComment) {
       || comment.body.indexOf('In the') > 0
       || comment.body.indexOf('In overtime.') > 0
     )
-    && comment.author.name.toLowerCase() === 'nfcaaofficialrefbot') {
+    && comment.author.toLowerCase() === 'nfcaaofficialrefbot') {
     return {
       resultComment: comment,
       parentComment,
@@ -207,7 +207,7 @@ const parsePlayCoaches = function parsePlayCoaches(comment, parentComment, homeT
     }
   }
 
-  const offCoach = `/u/${parent.author.name.toLowerCase()}`;
+  const offCoach = `/u/${parent.name.toLowerCase()}`;
 
   return {
     offCoach,
