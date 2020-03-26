@@ -154,6 +154,36 @@ const gameSchema = new Schema({
     type: Boolean,
     default: false,
   },
+  status: {
+    clock: {
+      type: Number,
+      min: 0,
+      max: 420, // Not required because overtime
+    },
+    quarter: {
+      type: Number,
+      min: 1,
+      required: () => (this.live),
+    }, // Current quarter or overtime
+    down: {
+      type: Number,
+      min: 1,
+      max: 4,
+      required: () => (this.live),
+    }, // 1,2,3,4
+    distance: {
+      type: Number,
+      min: 0,
+      max: 100,
+      required: () => (this.live),
+    }, // distance to go
+    yardLine: {
+      type: Number,
+      min: 0,
+      max: 100,
+      required: () => (this.live),
+    }, // between 0 and 100. 98 = home team's 2 yard line
+  },
 });
 
 module.exports = mongoose.model('Game', gameSchema);
