@@ -3,7 +3,7 @@ const Week = require('../models/schedules/week.model');
 const { addGame } = require('../tasks/addGame');
 const fetchGameInfo = require('../tasks/fetchGameInfo');
 
-const updateGames = async function updateCurrentWeekGames(seasonNo, weekNo) {
+const updateGames = async function updateCurrentWeekGames(seasonNo, weekNo, fresh) {
   console.log('Starting game update.');
   const updateStart = Date.now();
   const season = await Season.findOne({ seasonNo });
@@ -15,7 +15,7 @@ const updateGames = async function updateCurrentWeekGames(seasonNo, weekNo) {
         if (week.games[i].live) {
           // eslint-disable-next-line no-await-in-loop
           const updatedGame = await fetchGameInfo(week.games[i].gameId)
-            .then(gameInfo => addGame(gameInfo, seasonNo, weekNo));
+            .then(gameInfo => addGame(gameInfo, seasonNo, weekNo, !fresh));
 
           // eslint-disable-next-line no-await-in-loop
           const populatedGame = await updatedGame

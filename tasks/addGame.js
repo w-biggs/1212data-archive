@@ -85,12 +85,13 @@ const savePlays = function savePlaysInDatabase(plays, savedGameId) {
  * @param {Object} gameInfo The game's info.
  * @param {Number} seasonNo The game's season #
  * @param {Number} weekNo The game's week #
+ * @param {Boolean} doTimeCheck Whether to check if game is updated before editing
  */
-const addGame = function addGameToDatabase(gameInfo, seasonNo, weekNo) {
+const addGame = function addGameToDatabase(gameInfo, seasonNo, weekNo, doTimeCheck = true) {
   return Game.findOne({ gameId: gameInfo.gameId })
     .then((game) => {
       if (game) {
-        if (gameInfo.endTime > game.endTime) {
+        if (!doTimeCheck || gameInfo.endTime > game.endTime) {
           console.log(`Updating game ${gameInfo.gameId} in season ${seasonNo} week ${weekNo}`);
           const gamePlays = gameInfo.plays;
           return savePlays(gamePlays, game._id)

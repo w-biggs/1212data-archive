@@ -84,7 +84,7 @@ mongoose.connect('mongodb://127.0.0.1:27017/1212', {
       console.log(`env: ${app.get('env')}`);
       console.log('Press Ctrl+C to quit.');
 
-      updateGames(weekGames.seasonNo, weekGames.weekNo);
+      updateGames(weekGames.seasonNo, weekGames.weekNo, true);
 
       setInterval(updateGames, 60000, weekGames.seasonNo, weekGames.weekNo);
     });
