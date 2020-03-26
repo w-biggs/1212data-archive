@@ -3,12 +3,15 @@ const mongoose = require('mongoose');
 const fs = require('fs');
 const Season = require('./models/schedules/season.model');
 const Week = require('./models/schedules/week.model');
-// const Game = require('./models/schedules/game.model');
+const weekGames = require('./weekGames.json');
+const { addGame } = require('./tasks/addGame');
+const fetchGameInfo = require('./tasks/fetchGameInfo');
+const updateGames = require('./tasks/updateGames');
+const Game = require('./models/schedules/game.model');
 // const Team = require('./models/teams/team.model');
+// const Division = require('./models/teams/division.model');
 // const addOldGames = require('./old_data/oldGames');
 // const checkModifiedGames = require('./old_data/checkModifiedGames');
-// const fetchGameInfo = require('./tasks/fetchGameInfo');
-// const { addGame } = require('./tasks/addGame');
 
 // eslint-disable-next-line no-unused-vars
 const writeDebug = function writeDebug(data) {
@@ -28,7 +31,27 @@ mongoose.connect('mongodb://127.0.0.1:27017/1212', {
   useCreateIndex: true,
 })
   .catch(console.error)
-  .then(() => {
+  .then(async () => {
+    const addWeekGames = false;
+    if (addWeekGames) {
+      // Add the week's games
+      for (let i = 0; i < weekGames.games.length; i += 1) {
+        const weekGame = weekGames.games[i];
+        // eslint-disable-next-line no-await-in-loop
+        await Game.findOne({ gameId: weekGame })
+          .then((game) => {
+            if (game) {
+              return console.log(`${weekGame} already exists, skipping...`);
+            }
+            return fetchGameInfo(weekGame)
+              .then(gameInfo => addGame(gameInfo, weekGames.seasonNo, weekGames.weekNo))
+              .catch((error) => {
+                throw error;
+              });
+          });
+      }
+    }
+
     const app = express();
 
     app.use((req, res, next) => {
@@ -57,5 +80,9 @@ mongoose.connect('mongodb://127.0.0.1:27017/1212', {
       console.log(`App is listening to ${PORT}...`);
       console.log(`env: ${app.get('env')}`);
       console.log('Press Ctrl+C to quit.');
+
+      updateGames(weekGames.seasonNo, weekGames.weekNo);
+
+      setInterval(updateGames, 60000, weekGames.seasonNo, weekGames.weekNo);
     });
   });

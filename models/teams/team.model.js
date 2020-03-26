@@ -7,10 +7,10 @@ const teamSchema = new Schema({
   shortName: String,
   abbreviation: String,
   color: String,
-  division: {
+  division: [{
     type: Schema.Types.ObjectId,
     ref: 'Division',
-  },
+  }],
 });
 
 module.exports = mongoose.model('Team', teamSchema);

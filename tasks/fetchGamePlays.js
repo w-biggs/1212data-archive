@@ -98,25 +98,29 @@ const parseGist = function parseGist(gistContent, gistFormat) {
         });
       }
 
+      const playLength = (playTime === 'None' ? 0 : parseInt(playTime, 10))
+        + (runoffTime === 'None' ? 0 : parseInt(runoffTime, 10));
+
       plays.push({
+        playNumber: i,
         homeOffense,
         offense: {
-          number: parseInt(offNum, 10),
+          number: offNum === 'None' ? null : parseInt(offNum, 10),
           coach: `/u/${offCoach.toLowerCase()}`,
         },
         defense: {
-          number: parseInt(defNum, 10),
+          number: defNum === 'None' ? null : parseInt(defNum, 10),
           coach: [`/u/${defCoach.toLowerCase()}`],
         },
-        playType: playType.replace('Play.', ''),
-        result: result.replace('Result.', ''),
-        yards: parseInt(yards, 10),
+        playType,
+        result: result || 'None',
+        yards: yards === 'None' ? 0 : parseInt(yards, 10),
         down: parseInt(down, 10),
         distance: parseInt(distance, 10),
         yardLine: parseInt(yardLine, 10),
         quarter: parseInt(quarter, 10),
-        clock: parseInt(clock, 10),
-        playLength: parseInt(playTime, 10) + parseInt(runoffTime, 10),
+        clock: Math.max(parseInt(clock, 10), 0), // can be negative on PATs at end of quarters
+        playLength: Math.max(playLength, 0), // same
       });
     }
   } else {
@@ -194,6 +198,8 @@ const fetchInfoFromComments = function fetchInfoFromComments(
       : parsePlayCoaches(comment, null, homeTeam, awayTeam);
     
     if (play) {
+      play.playNumber = i;
+
       const offCoach = gistPlays ? play.offense.coach : play.offCoach;
       const defCoach = gistPlays ? play.defense.coach : play.defCoach;
       

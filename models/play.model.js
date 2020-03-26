@@ -5,8 +5,9 @@ const { Schema } = mongoose;
 const playSchema = new Schema({
   commentId: {
     type: String,
-    required: [true, 'All comments must have an associated Comment ID.'],
-    unique: true,
+  },
+  playNumber: {
+    type: Number,
   },
   game: {
     type: Schema.Types.ObjectId,
@@ -86,5 +87,7 @@ const playSchema = new Schema({
     required: true,
   }, // Time the play took
 });
+
+playSchema.index({ commentId: 1, playNumber: 1, game: 1 }, { unique: true });
 
 module.exports = mongoose.model('Play', playSchema);

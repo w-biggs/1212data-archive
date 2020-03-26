@@ -123,6 +123,7 @@ const parseGameJson = function parseGameJson(gameJson, gameId) {
     },
     plays: [],
     live: !(postBody.indexOf('Game complete') >= 0),
+    status: {},
   };
 
   let homeCoach = '';
@@ -162,6 +163,23 @@ const parseGameJson = function parseGameJson(gameJson, gameId) {
   const gameStats = parseGameStats(postBody);
   gameObj.homeTeam.stats = gameStats.homeStats;
   gameObj.awayTeam.stats = gameStats.awayStats;
+
+  // Status
+  if (gameObj.live) {
+    const statusRegex = /([0-9]+):([0-9]+)\|([0-9]+)\|([0-9]+).+ & ([0-9]+|goal)\|([-0-9]+)(?: \[(.+?)\])?.+?\[(.+?)\]/;
+    const statusMatch = statusRegex.exec(postBody);
+    const [, min, sec, quarter, down, distance, location, side, possession] = statusMatch;
+    const fixedLocation = Math.max(location, 0);
+  
+    gameObj.status.clock = (parseInt(min, 10) * 60) + parseInt(sec, 10);
+    gameObj.status.quarter = parseInt(quarter, 10);
+    gameObj.status.down = parseInt(down, 10);
+    gameObj.status.distance = distance === 'goal' ? parseInt(fixedLocation, 10) : parseInt(distance, 10);
+    gameObj.status.yardLine = side && (fixTeamHtmlEntities(side) === gameObj.awayTeam.team)
+      ? 100 - parseInt(fixedLocation, 10)
+      : parseInt(fixedLocation, 10);
+    gameObj.status.homeOffense = (fixTeamHtmlEntities(possession) === gameObj.awayTeam.team);
+  }
 
   return fetchGamePlays(playsLink, gameJson, gameObj.homeTeam, gameObj.awayTeam)
     .catch((error) => {
@@ -336,24 +354,23 @@ const fillGameRefs = function fillGameRefs(parsedGame) {
 /**
  * Fetch a game's information and parse it
  * @param {String} gameId The game's Reddit post ID
+ * @param {Boolean} expand Whether to expand replies
+ * @param {Boolean} limit Whether to rate limit
  */
-const fetchGameInfo = function fetchAndParseGameInfo(gameId) {
-  reddit.config({ requestDelay: 1000 }); // Rate limits...
-  return reddit.getSubmission(gameId).fetch()
-    .then((response) => {
-      console.log(`Fetched ${gameId}`);
-      return response;
-    })
-    .expandReplies({ limit: Infinity, depth: Infinity })
-    .then((response) => {
-      console.log(`Expanded replies for ${gameId}`);
-      return response;
-    })
-    .then(response => parseGameJson(response, gameId))
-    .then(parsedGame => fillGameRefs(parsedGame))
-    .catch((error) => {
-      throw error;
-    });
+const fetchGameInfo = async function fetchAndParseGameInfo(gameId, expand = true, limit = true) {
+  if (limit) {
+    reddit.config({ requestDelay: 1000 }); // Rate limits...
+  }
+  let response = null;
+  if (expand) {
+    response = await reddit.getSubmission(gameId).fetch()
+      .expandReplies({ limit: Infinity, depth: Infinity });
+  } else {
+    response = await reddit.getSubmission(gameId).fetch();
+  }
+  // console.log(`Fetched ${gameId}`);
+  const parsedGame = await parseGameJson(response, gameId);
+  return fillGameRefs(parsedGame);
 };
 
 module.exports = fetchGameInfo;

@@ -49,25 +49,33 @@ const getWeek = function getOrAddWeek(weekNo, season) {
  * @param {import('mongoose').Schema.Types.ObjectId} savedGameId ID of the saved game
  */
 const savePlays = function savePlaysInDatabase(plays, savedGameId) {
-  console.log('Saving plays...');
   const playSaves = [];
-  for (let i = 0; i < plays.length; i += 1) {
-    const play = plays[i];
-    playSaves.push(
-      Play.findOne({ commentId: play.commentId })
-        .then((fetchedPlay) => {
-          if (fetchedPlay) {
-            return fetchedPlay;
-          }
-          play.game = savedGameId;
-          const newPlay = new Play(play);
-          return newPlay.save()
-            .catch((error) => {
-              console.error(`Error at play ${play.commentId}`);
-              throw error;
-            });
-        }),
-    );
+  if (plays && plays.length) {
+    console.log('Saving plays...');
+    for (let i = 0; i < plays.length; i += 1) {
+      const play = plays[i];
+      playSaves.push(
+        Play.findOne({
+          commentId: play.commentId,
+          playNumber: play.playNumber,
+          game: savedGameId,
+        })
+          .then((fetchedPlay) => {
+            if (fetchedPlay) {
+              return fetchedPlay;
+            }
+            play.game = savedGameId;
+            const newPlay = new Play(play);
+            return newPlay.save()
+              .catch((error) => {
+                console.error(`Error at play ${play.commentId} / ${play.playNumber}`);
+                throw error;
+              });
+          }),
+      );
+    }
+  } else {
+    console.log('No plays to save.');
   }
   return Promise.all(playSaves);
 };
@@ -79,30 +87,41 @@ const savePlays = function savePlaysInDatabase(plays, savedGameId) {
  * @param {Number} weekNo The game's week #
  */
 const addGame = function addGameToDatabase(gameInfo, seasonNo, weekNo) {
-  console.log(`Adding game ${gameInfo.gameId} in season ${seasonNo} week ${weekNo}`);
   return Game.findOne({ gameId: gameInfo.gameId })
     .then((game) => {
       if (game) {
         if (gameInfo.endTime > game.endTime) {
-          game.set(gameInfo);
-          return game.save();
+          console.log(`Updating game ${gameInfo.gameId} in season ${seasonNo} week ${weekNo}`);
+          const gamePlays = gameInfo.plays;
+          return savePlays(gamePlays, game._id)
+            .then((savedPlays) => {
+              const updatedGame = game;
+              const updatedGameInfo = gameInfo;
+              updatedGameInfo.plays = savedPlays;
+              updatedGame.set(updatedGameInfo);
+              return updatedGame.save();
+            });
         }
+        /*
+        console.log(`No updates for game ${gameInfo.gameId} in season ${seasonNo} week ${weekNo}`);
+        */
         return game;
       }
       return getSeason(seasonNo)
         .then(season => getWeek(weekNo, season)) // add week
         .then((week) => {
+          console.log(`Adding game ${gameInfo.gameId} in season ${seasonNo} week ${weekNo}`);
           const gamePlays = gameInfo.plays;
           const newGameInfo = gameInfo;
           newGameInfo.plays = [];
-          const newGame = new Game(gameInfo);
+          const newGame = new Game(newGameInfo);
           return savePlays(gamePlays, newGame._id)
             .then((savedPlays) => {
               newGame.plays = savedPlays;
               return newGame.save()
                 .then((finalGame) => {
                   week.games.push(finalGame._id);
-                  week.save()
+                  return week.save()
                     .then(() => finalGame);
                 });
             });

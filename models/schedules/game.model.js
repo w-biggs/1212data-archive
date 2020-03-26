@@ -13,7 +13,7 @@ const gameSchema = new Schema({
   homeTeam: {
     offense: {
       type: String,
-      enum: ['Option', 'Pro', 'Spread', 'Air Raid'],
+      enum: ['Option', 'Pro', 'Spread', 'Air'],
     }, // Offensive playbook
     defense: {
       type: String,
@@ -81,7 +81,7 @@ const gameSchema = new Schema({
   awayTeam: {
     offense: {
       type: String,
-      enum: ['Option', 'Pro', 'Spread', 'Air Raid'],
+      enum: ['Option', 'Pro', 'Spread', 'Air'],
     }, // Offensive playbook
     defense: {
       type: String,
@@ -155,6 +155,7 @@ const gameSchema = new Schema({
     default: false,
   },
   status: {
+    homeOffense: Boolean,
     clock: {
       type: Number,
       min: 0,
