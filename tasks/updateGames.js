@@ -14,7 +14,7 @@ const updateGames = async function updateCurrentWeekGames(seasonNo, weekNo) {
       for (let i = 0; i < week.games.length; i += 1) {
         if (week.games[i].live) {
           // eslint-disable-next-line no-await-in-loop
-          const updatedGame = await fetchGameInfo(week.games[i].gameId, false, false)
+          const updatedGame = await fetchGameInfo(week.games[i].gameId)
             .then(gameInfo => addGame(gameInfo, seasonNo, weekNo));
 
           // eslint-disable-next-line no-await-in-loop

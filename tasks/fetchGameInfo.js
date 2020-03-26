@@ -170,9 +170,9 @@ const parseGameJson = function parseGameJson(gameJson, gameId) {
   gameObj.status.quarter = parseInt(quarter, 10);
   gameObj.status.down = parseInt(down, 10);
   gameObj.status.distance = distance === 'goal' ? parseInt(fixedLocation, 10) : parseInt(distance, 10);
-  gameObj.status.yardLine = side && (fixTeamHtmlEntities(side) === gameObj.homeTeam.team)
-    ? 100 - parseInt(fixedLocation, 10)
-    : parseInt(fixedLocation, 10);
+  gameObj.status.yardLine = side && (fixTeamHtmlEntities(side) === fixTeamHtmlEntities(possession))
+    ? parseInt(fixedLocation, 10)
+    : 100 - parseInt(fixedLocation, 10);
   gameObj.status.homeOffense = (fixTeamHtmlEntities(possession) === gameObj.homeTeam.team);
 
   return fetchGamePlays(playsLink, gameJson, gameObj.homeTeam, gameObj.awayTeam)
