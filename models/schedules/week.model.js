@@ -38,7 +38,7 @@ weekSchema.methods.getSortedGames = function getSortedGames() {
       games.sort((a, b) => {
         const [gameA, gameB] = [a, b].map((game) => {
           const timeElapsed = game.status.quarter
-            ? ((game.status.quarter - 1) * 420) + game.status.clock
+            ? ((game.status.quarter - 1) * 420) + (420 - game.status.clock)
             : 1680;
           return {
             timeElapsed,
