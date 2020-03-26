@@ -165,21 +165,19 @@ const parseGameJson = function parseGameJson(gameJson, gameId) {
   gameObj.awayTeam.stats = gameStats.awayStats;
 
   // Status
-  if (gameObj.live) {
-    const statusRegex = /([0-9]+):([0-9]+)\|([0-9]+)\|([0-9]+).+ & ([0-9]+|goal)\|([-0-9]+)(?: \[(.+?)\])?.+?\[(.+?)\]/;
-    const statusMatch = statusRegex.exec(postBody);
-    const [, min, sec, quarter, down, distance, location, side, possession] = statusMatch;
-    const fixedLocation = Math.max(location, 0);
-  
-    gameObj.status.clock = (parseInt(min, 10) * 60) + parseInt(sec, 10);
-    gameObj.status.quarter = parseInt(quarter, 10);
-    gameObj.status.down = parseInt(down, 10);
-    gameObj.status.distance = distance === 'goal' ? parseInt(fixedLocation, 10) : parseInt(distance, 10);
-    gameObj.status.yardLine = side && (fixTeamHtmlEntities(side) === gameObj.awayTeam.team)
-      ? 100 - parseInt(fixedLocation, 10)
-      : parseInt(fixedLocation, 10);
-    gameObj.status.homeOffense = (fixTeamHtmlEntities(possession) === gameObj.awayTeam.team);
-  }
+  const statusRegex = /([0-9]+):([0-9]+)\|([0-9]+)\|([0-9]+).+ & ([0-9]+|goal)\|([-0-9]+)(?: \[(.+?)\])?.+?\[(.+?)\]/;
+  const statusMatch = statusRegex.exec(postBody);
+  const [, min, sec, quarter, down, distance, location, side, possession] = statusMatch;
+  const fixedLocation = Math.max(location, 0);
+
+  gameObj.status.clock = (parseInt(min, 10) * 60) + parseInt(sec, 10);
+  gameObj.status.quarter = parseInt(quarter, 10);
+  gameObj.status.down = parseInt(down, 10);
+  gameObj.status.distance = distance === 'goal' ? parseInt(fixedLocation, 10) : parseInt(distance, 10);
+  gameObj.status.yardLine = side && (fixTeamHtmlEntities(side) === gameObj.awayTeam.team)
+    ? 100 - parseInt(fixedLocation, 10)
+    : parseInt(fixedLocation, 10);
+  gameObj.status.homeOffense = (fixTeamHtmlEntities(possession) === gameObj.awayTeam.team);
 
   return fetchGamePlays(playsLink, gameJson, gameObj.homeTeam, gameObj.awayTeam)
     .catch((error) => {
