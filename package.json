@@ -7,8 +7,8 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "push": "rsync -rvzh --progress --delete ./ server:/srv/1212data",
-    "dumpPush": "mongodump --db 1212 --gzip && rsync -rvzh --progress --delete ./ server:/srv/1212data",
+    "push": "rsync -rzh --info=progress2 --no-inc-recursive --delete ./ server:/srv/1212data",
+    "dumpPush": "mongodump --db 1212 --gzip && rsync -rzh --info=progress2 --no-inc-recursive --delete ./ server:/srv/1212data",
     "start": "node server.js"
   },
   "dependencies": {
