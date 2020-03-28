@@ -41,7 +41,7 @@ weekSchema.methods.getSortedGames = function getSortedGames() {
             ? ((game.status.quarter - 1) * 420) + (420 - game.status.clock)
             : 1680;
           return {
-            timeElapsed,
+            timeElapsed: game.live ? timeElapsed : 1680,
             lastUpdate: game.endTime,
           };
         });
