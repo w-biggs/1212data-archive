@@ -11,7 +11,8 @@ const updateGames = require('./tasks/updateGames');
 const Game = require('./models/schedules/game.model');
 const TeamMetrics = require('./models/teamMetrics.model');
 const Team = require('./models/teams/team.model');
-// const Division = require('./models/teams/division.model');
+const Division = require('./models/teams/division.model');
+const Conference = require('./models/teams/conference.model');
 // const addOldGames = require('./old_data/oldGames');
 // const checkModifiedGames = require('./old_data/checkModifiedGames');
 
@@ -51,7 +52,7 @@ mongoose.connect('mongodb://127.0.0.1:27017/1212', {
           // eslint-disable-next-line no-await-in-loop
           await Game.deleteOne({ _id: currentGame._id });
           // eslint-disable-next-line no-await-in-loop
-          await Week.update({ _id: currentWeek._id }, { $pull: { games: currentGame._id } });
+          await Week.updateOne({ _id: currentWeek._id }, { $pull: { games: currentGame._id } });
         } else {
           // Game already exists
           weekGames.games.splice(gamePos, 1);
@@ -101,26 +102,40 @@ mongoose.connect('mongodb://127.0.0.1:27017/1212', {
 
     app.get('/metrics/', async (req, res) => {
       const teamMetrics = await TeamMetrics.find()
+        .select('-_id')
         .populate([{
           path: 'team',
+          select: '-_id',
+          populate: {
+            path: 'division',
+            model: Division,
+            select: 'name conference -_id',
+            populate: {
+              path: 'conference',
+              model: Conference,
+              select: 'name -_id',
+            },
+          },
         }, {
           path: 'seasons.season',
           model: Season,
-          select: 'seasonNo',
+          select: 'seasonNo -_id',
         }, {
           path: 'seasons.weeks.week',
           model: Week,
-          select: 'weekNo',
+          select: 'weekNo -_id',
         }, {
           path: 'seasons.weeks.game',
           model: Game,
-          select: 'homeTeam.team awayTeam.team homeTeam.stats.score awayTeam.stats.score',
+          select: 'homeTeam.team awayTeam.team homeTeam.stats.score awayTeam.stats.score -_id',
           populate: [{
             path: 'homeTeam.team',
             model: Team,
+            select: 'name -_id',
           }, {
             path: 'awayTeam.team',
             model: Team,
+            select: 'name -_id',
           }],
         }])
         .exec();
