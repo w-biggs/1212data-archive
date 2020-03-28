@@ -34,22 +34,38 @@ mongoose.connect('mongodb://127.0.0.1:27017/1212', {
 })
   .catch(console.error)
   .then(async () => {
-    const addWeekGames = false;
-    if (addWeekGames) {
+    const setWeekGames = true;
+    if (setWeekGames) {
+      const currentSeason = await Season.findOne({ seasonNo: weekGames.seasonNo }).exec();
+      const currentWeek = await Week.findOne({
+        season: currentSeason._id,
+        weekNo: weekGames.weekNo,
+      })
+        .populate('games')
+        .exec();
+      for (let i = 0; i < currentWeek.games.length; i += 1) {
+        const currentGame = currentWeek.games[i];
+        const gamePos = weekGames.games.indexOf(currentGame.gameId);
+        if (gamePos < 0) {
+          console.log(`${currentGame.gameId} no longer in weekGames, deleting.`);
+          // eslint-disable-next-line no-await-in-loop
+          await Game.deleteOne({ _id: currentGame._id });
+          // eslint-disable-next-line no-await-in-loop
+          await Week.update({ _id: currentWeek._id }, { $pull: { games: currentGame._id } });
+        } else {
+          // Game already exists
+          weekGames.games.splice(gamePos, 1);
+        }
+      }
+
       // Add the week's games
       for (let i = 0; i < weekGames.games.length; i += 1) {
         const weekGame = weekGames.games[i];
         // eslint-disable-next-line no-await-in-loop
-        await Game.findOne({ gameId: weekGame })
-          .then((game) => {
-            if (game) {
-              return console.log(`${weekGame} already exists, skipping...`);
-            }
-            return fetchGameInfo(weekGame)
-              .then(gameInfo => addGame(gameInfo, weekGames.seasonNo, weekGames.weekNo))
-              .catch((error) => {
-                throw error;
-              });
+        await fetchGameInfo(weekGame)
+          .then(gameInfo => addGame(gameInfo, weekGames.seasonNo, weekGames.weekNo))
+          .catch((error) => {
+            throw error;
           });
       }
     }
