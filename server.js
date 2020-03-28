@@ -85,7 +85,6 @@ mongoose.connect('mongodb://127.0.0.1:27017/1212', {
 
     app.get('/metrics/', async (req, res) => {
       const teamMetrics = await TeamMetrics.find()
-        .lean()
         .populate([{
           path: 'team',
         }, {
@@ -100,16 +99,22 @@ mongoose.connect('mongodb://127.0.0.1:27017/1212', {
           path: 'seasons.weeks.game',
           model: Game,
           select: 'homeTeam.team awayTeam.team homeTeam.stats.score awayTeam.stats.score',
-          populate: {
+          populate: [{
             path: 'homeTeam.team',
             model: Team,
-          },
+          }, {
+            path: 'awayTeam.team',
+            model: Team,
+          }],
         }])
         .exec();
+      const teamMetricsObjs = [];
       for (let i = 0; i < teamMetrics.length; i += 1) {
-        // teamMetrics[i].elo = teamMetrics[i].getCurrentElo();
+        const teamMetricsObj = teamMetrics[i].toObject();
+        teamMetricsObj.elo = teamMetrics[i].getCurrentElo();
+        teamMetricsObjs.push(teamMetricsObj);
       }
-      res.send(teamMetrics);
+      res.send(teamMetricsObjs);
     });
 
     const PORT = process.env.PORT || 12121;
