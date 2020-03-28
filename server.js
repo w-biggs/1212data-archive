@@ -1,5 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const compression = require('compression');
 const fs = require('fs');
 const Season = require('./models/schedules/season.model');
 const Week = require('./models/schedules/week.model');
@@ -8,7 +9,8 @@ const { addGame } = require('./tasks/addGame');
 const fetchGameInfo = require('./tasks/fetchGameInfo');
 const updateGames = require('./tasks/updateGames');
 const Game = require('./models/schedules/game.model');
-// const Team = require('./models/teams/team.model');
+const TeamMetrics = require('./models/teamMetrics.model');
+const Team = require('./models/teams/team.model');
 // const Division = require('./models/teams/division.model');
 // const addOldGames = require('./old_data/oldGames');
 // const checkModifiedGames = require('./old_data/checkModifiedGames');
@@ -54,6 +56,8 @@ mongoose.connect('mongodb://127.0.0.1:27017/1212', {
 
     const app = express();
 
+    app.use(compression());
+
     app.use((req, res, next) => {
       const origins = ['http://localhost:3000', 'http://localhost:3000/', 'https://1212.one', 'https://1212.one/'];
       console.log(req.headers.origin);
@@ -77,6 +81,35 @@ mongoose.connect('mongodb://127.0.0.1:27017/1212', {
       } else {
         res.send({ error: 'Season not found.' });
       }
+    });
+
+    app.get('/metrics/', async (req, res) => {
+      const teamMetrics = await TeamMetrics.find()
+        .lean()
+        .populate([{
+          path: 'team',
+        }, {
+          path: 'seasons.season',
+          model: Season,
+          select: 'seasonNo',
+        }, {
+          path: 'seasons.weeks.week',
+          model: Week,
+          select: 'weekNo',
+        }, {
+          path: 'seasons.weeks.game',
+          model: Game,
+          select: 'homeTeam.team awayTeam.team homeTeam.stats.score awayTeam.stats.score',
+          populate: {
+            path: 'homeTeam.team',
+            model: Team,
+          },
+        }])
+        .exec();
+      for (let i = 0; i < teamMetrics.length; i += 1) {
+        // teamMetrics[i].elo = teamMetrics[i].getCurrentElo();
+      }
+      res.send(teamMetrics);
     });
 
     const PORT = process.env.PORT || 12121;

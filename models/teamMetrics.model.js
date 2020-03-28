@@ -37,4 +37,10 @@ const teamMetricsSchema = new Schema({
   }],
 });
 
+teamMetricsSchema.methods.getCurrentElo = function getCurrentElo() {
+  const latestSeason = this.seasons[this.seasons.length - 1];
+  const latestWeek = latestSeason.weeks[latestSeason.weeks.length - 1];
+  return latestWeek.elo.elo;
+};
+
 module.exports = mongoose.model('TeamMetrics', teamMetricsSchema);
