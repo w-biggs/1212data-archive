@@ -187,4 +187,8 @@ const gameSchema = new Schema({
   },
 });
 
+gameSchema.methods.getGameLength = function getGameLength() {
+  return this.homeTeam.stats.timeOfPossession + this.awayTeam.stats.timeOfPossession;
+};
+
 module.exports = mongoose.model('Game', gameSchema);

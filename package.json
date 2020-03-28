@@ -9,11 +9,13 @@
   "scripts": {
     "push": "rsync -rzh --info=progress2 --no-inc-recursive --delete ./ server:/srv/1212data",
     "dumpPush": "rm -r dump/ && mongodump --db 1212 --gzip && rsync -rzh --info=progress2 --no-inc-recursive --delete ./ server:/srv/1212data",
-    "start": "node server.js"
+    "start": "node server.js",
+    "metrics": "node metrics/updateMetrics.js"
   },
   "dependencies": {
     "bent": "^7.1.2",
     "express": "^4.17.1",
+    "mathjs": "^6.6.1",
     "mongoose": "^5.9.4"
   }
 }
