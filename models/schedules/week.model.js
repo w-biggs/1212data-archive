@@ -27,9 +27,38 @@ weekSchema.methods.getSortedGames = function getSortedGames() {
     path: 'games',
     populate: [{
       path: 'homeTeam.team',
-    },
-    {
+      select: '-_id',
+      populate: {
+        path: 'division',
+        select: '-_id',
+        options: {
+          retainNullValues: true,
+        },
+        populate: {
+          path: 'conference',
+          select: 'name shortName -_id',
+        },
+      },
+    }, {
+      path: 'homeTeam.coaches.coach',
+      select: '-_id',
+    }, {
       path: 'awayTeam.team',
+      select: '-_id',
+      populate: {
+        path: 'division',
+        select: '-_id',
+        options: {
+          retainNullValues: true,
+        },
+        populate: {
+          path: 'conference',
+          select: 'name shortName -_id',
+        },
+      },
+    }, {
+      path: 'awayTeam.coaches.coach',
+      select: '-_id',
     }],
   })
     .execPopulate()

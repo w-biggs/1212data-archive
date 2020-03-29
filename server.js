@@ -84,20 +84,51 @@ mongoose.connect('mongodb://127.0.0.1:27017/1212', {
       return next();
     });
 
-    app.get('/games/:seasonNo/:weekNo/', async (req, res) => {
-      const { seasonNo, weekNo } = req.params;
+    app.get('/games/:seasonNo/:weekNo/:confName?/', async (req, res) => {
+      const { seasonNo, weekNo, confName } = req.params;
+      let conf = null;
+      if (confName) {
+        conf = await Conference.findOne({ shortName: decodeURI(confName) });
+        if (!conf) {
+          return res.send({ error: 'Conference not found.' });
+        }
+      }
+
       const season = await Season.findOne({ seasonNo });
       if (season) {
-        const week = await Week.findOne({ season: season._id, weekNo }).populate('season');
+        const week = await Week.findOne({ season: season._id, weekNo })
+          .populate('season', 'seasonNo');
         if (week) {
           week.games = await week.getSortedGames();
-          res.send(week);
-        } else {
-          res.send({ error: 'Week not found.' });
+          if (conf) {
+            const filteredGames = [];
+            for (let i = 0; i < week.games.length; i += 1) {
+              const weekGame = week.games[i];
+
+              const homeDiv = weekGame.homeTeam.team.division[seasonNo - 1];
+              const homeConf = homeDiv ? homeDiv.conference.shortName : null;
+
+              const awayDiv = weekGame.awayTeam.team.division[seasonNo - 1];
+              const awayConf = awayDiv ? awayDiv.conference.shortName : null;
+
+              if (!homeDiv) {
+                console.log(weekGame.homeTeam.team.name);
+              }
+              if (!awayDiv) {
+                console.log(weekGame.awayTeam.team.name);
+              }
+
+              if (awayConf === confName || homeConf === confName) {
+                filteredGames.push(weekGame);
+              }
+            }
+            week.games = filteredGames;
+          }
+          return res.send(week);
         }
-      } else {
-        res.send({ error: 'Season not found.' });
+        return res.send({ error: 'Week not found.' });
       }
+      return res.send({ error: 'Season not found.' });
     });
 
     app.get('/metrics/', async (req, res) => {
