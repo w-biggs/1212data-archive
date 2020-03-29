@@ -101,7 +101,9 @@ mongoose.connect('mongodb://127.0.0.1:27017/1212', {
     });
 
     app.get('/metrics/', async (req, res) => {
+      const startTime = process.hrtime();
       const teamMetrics = await TeamMetrics.find()
+        .lean()
         .select('-_id')
         .populate([{
           path: 'team',
@@ -139,13 +141,9 @@ mongoose.connect('mongodb://127.0.0.1:27017/1212', {
           }],
         }])
         .exec();
-      const teamMetricsObjs = [];
-      for (let i = 0; i < teamMetrics.length; i += 1) {
-        const teamMetricsObj = teamMetrics[i].toObject();
-        teamMetricsObj.elo = teamMetrics[i].getCurrentElo();
-        teamMetricsObjs.push(teamMetricsObj);
-      }
-      res.send(teamMetricsObjs);
+      const findTime = process.hrtime(startTime);
+      console.log(`${findTime[0]}s ${findTime[1] / 1e6}ms`);
+      res.send(teamMetrics);
     });
 
     const PORT = process.env.PORT || 12121;
