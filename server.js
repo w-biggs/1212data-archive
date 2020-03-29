@@ -151,6 +151,7 @@ mongoose.connect('mongodb://127.0.0.1:27017/1212', {
 
     app.get('/metrics/', async (req, res) => {
       const startTime = process.hrtime();
+      const ranges = await TeamMetrics.getRanges();
       const teamMetrics = await TeamMetrics.find()
         .lean()
         .select('-_id')
@@ -192,7 +193,11 @@ mongoose.connect('mongodb://127.0.0.1:27017/1212', {
         .exec();
       const findTime = process.hrtime(startTime);
       console.log(`${findTime[0]}s ${findTime[1] / 1e6}ms`);
-      res.send(teamMetrics);
+      const metrics = {
+        teams: teamMetrics,
+        ranges,
+      };
+      res.send(metrics);
     });
 
     const PORT = process.env.PORT || 12121;
