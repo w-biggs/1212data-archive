@@ -31,9 +31,6 @@ weekSchema.methods.getSortedGames = function getSortedGames() {
       populate: {
         path: 'division',
         select: '-_id',
-        options: {
-          retainNullValues: true,
-        },
         populate: {
           path: 'conference',
           select: 'name shortName -_id',
@@ -48,9 +45,6 @@ weekSchema.methods.getSortedGames = function getSortedGames() {
       populate: {
         path: 'division',
         select: '-_id',
-        options: {
-          retainNullValues: true,
-        },
         populate: {
           path: 'conference',
           select: 'name shortName -_id',

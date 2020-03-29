@@ -131,6 +131,24 @@ mongoose.connect('mongodb://127.0.0.1:27017/1212', {
       return res.send({ error: 'Season not found.' });
     });
 
+    app.get('/seasons/', async (req, res) => {
+      const seasons = await Season.find()
+        .lean()
+        .select('-_id')
+        .populate({
+          path: 'weeks',
+          select: 'weekNo weekName -_id',
+        });
+      res.send(seasons);
+    });
+
+    app.get('/confs/', async (req, res) => {
+      const confs = await Conference.find()
+        .lean()
+        .select('name shortName -_id');
+      res.send(confs);
+    });
+
     app.get('/metrics/', async (req, res) => {
       const startTime = process.hrtime();
       const teamMetrics = await TeamMetrics.find()
