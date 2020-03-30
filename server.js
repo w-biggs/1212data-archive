@@ -77,7 +77,7 @@ mongoose.connect('mongodb://127.0.0.1:27017/1212', {
 
     app.use((req, res, next) => {
       const origins = ['http://localhost:3000', 'http://localhost:3000/', 'https://1212.one', 'https://1212.one/'];
-      console.log(req.headers.origin);
+      console.log(`Origin: ${req.headers.origin}, IP: ${req.headers['x-forwarded-for']}`);
       if (origins.indexOf(req.headers.origin) >= 0) {
         res.header('Access-Control-Allow-Origin', req.headers.origin);
       }
