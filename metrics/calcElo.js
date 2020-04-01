@@ -26,9 +26,11 @@ const getElo = async function getTeamElo(team, weekNo, season) {
     return 1500;
   }
   const teamMetrics = await TeamMetrics.findOne({ team: team._id }).exec();
+  let foundSeason = false;
   for (let i = 0; i < teamMetrics.seasons.length; i += 1) {
     const metricsSeason = teamMetrics.seasons[i];
     if (metricsSeason.season.equals(season._id)) {
+      foundSeason = true;
       for (let j = metricsSeason.weeks.length - 1; j >= 0; j -= 1) {
         const metricsWeek = metricsSeason.weeks[j];
         if (typeof metricsWeek.week === 'undefined') {
@@ -43,6 +45,12 @@ const getElo = async function getTeamElo(team, weekNo, season) {
       }
     }
   }
+
+  // Didn't play in the previous season.
+  if (!foundSeason) {
+    return 1500;
+  }
+  
   console.log(teamMetrics);
   throw new Error(`Could not find S${season ? season.seasonNo : '--'} W${weekNo || '--'} metrics for ${team.name}`);
 };

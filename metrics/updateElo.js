@@ -1,4 +1,5 @@
 /* eslint-disable no-await-in-loop */
+const { ObjectId } = require('mongoose').Types;
 const { getElo, calcGameElo } = require('./calcElo');
 const Team = require('../models/teams/team.model');
 const TeamMetrics = require('../models/teamMetrics.model');
@@ -86,7 +87,13 @@ const updateWeekElo = async function updateWeekElo(week, season) {
   const eloUpdates = [];
   if (week === null) {
     const prevSeason = await Season.findOne({ seasonNo: season.seasonNo - 1 }).exec();
-    const teams = await Team.find().exec();
+    const teams = await Team.find({
+      [`division.${season.seasonNo - 1}`]: {
+        $not: {
+          $eq: ObjectId('5e7ff80b509a2008ccbf4bf7'),
+        },
+      },
+    }).exec();
     for (let i = 0; i < teams.length; i += 1) {
       const team = teams[i];
       const oldElo = await getElo(team, Number.MAX_VALUE, prevSeason);
