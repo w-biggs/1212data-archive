@@ -4,11 +4,14 @@
  */
 const mongoose = require('mongoose');
 const { updateWeekElo } = require('./updateElo');
+const updateSeasonWPN = require('./updateWPN');
 const Team = require('../models/teams/team.model');
 const TeamMetrics = require('../models/teamMetrics.model');
 const Season = require('../models/schedules/season.model');
 const Week = require('../models/schedules/week.model');
 // const Game = require('../models/schedules/game.model');
+
+// mongoose.set('debug', true);
 
 const args = process.argv.slice(2);
 
@@ -45,28 +48,38 @@ const generateMetrics = async function generateMetrics() {
  */
 const updateMetrics = async function updateMetrics(seasonNo = null, weekNo = null) {
   await generateMetrics();
+
   if (Number.isNaN(seasonNo) || Number.isNaN(weekNo)) {
     throw new Error('One of your arguments were invalid.');
   }
+
+  // Find the matching season
   const seasons = await Season.find(seasonNo ? { seasonNo } : null).exec();
+
   for (let i = 0; i < seasons.length; i += 1) {
     const season = seasons[i];
-    // console.log(weekNo);
+
     if (weekNo === -1 || weekNo === null) {
       await updateWeekElo(null, season);
     }
+
     const weekSearchObj = {
       season: season._id,
     };
+
     if (weekNo !== null) {
       weekSearchObj.weekNo = weekNo;
     }
+
     const weeks = await Week.find(weekSearchObj).exec();
+
     for (let j = 0; j < weeks.length; j += 1) {
       const week = weeks[j];
       await updateWeekElo(week, season);
     }
   }
+
+  await updateSeasonWPN(seasonNo);
 };
 
 mongoose.connect('mongodb://127.0.0.1:27017/1212', {

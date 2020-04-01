@@ -139,7 +139,6 @@ const calcGameElo = async function calcGameElo(gameId) {
 
   const newAwayElo = awayElo + awayEloChange;
 
-  console.log(homeTeam.name, homeElo, newHomeElo, awayTeam.name, awayElo, newAwayElo);
   return {
     game,
     homeTeam,

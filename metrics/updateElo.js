@@ -45,7 +45,7 @@ const updateTeamElo = async function updateTeamElo(team, season, week, game, opp
   for (let i = 0; i < eloSeason.weeks.length; i += 1) {
     const metricsWeek = eloSeason.weeks[i];
     if ((typeof metricsWeek.week === 'undefined' && week === null)
-      || (typeof metricsWeek.week !== 'undefined' && metricsWeek.week.equals(week._id))) {
+      || (typeof metricsWeek.week !== 'undefined' && week !== null && metricsWeek.week.equals(week._id))) {
       console.log(`Updating week ${week ? week.weekNo : 'preseason'} in ${team.name} metrics season ${season.seasonNo}`);
       if (game) {
         metricsWeek.game = game._id;
@@ -57,6 +57,10 @@ const updateTeamElo = async function updateTeamElo(team, season, week, game, opp
       };
       return teamMetrics.save();
     }
+  }
+
+  if (week === null) {
+    throw new Error(`Unexpected null week for ${team.name} metrics season ${season.seasonNo}`);
   }
 
   // If the week we're updating doesn't exist yet
