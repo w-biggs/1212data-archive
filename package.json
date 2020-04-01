@@ -10,7 +10,8 @@
     "push": "rsync -rzh --exclude 'node_modules/' --info=progress2 --no-inc-recursive --delete ./ server:/srv/1212data",
     "dumpPush": "rm -r dump/ && mongodump --db 1212 --gzip && rsync -rzh --exclude 'node_modules/' --info=progress2 --no-inc-recursive --delete ./ server:/srv/1212data",
     "start": "node server.js",
-    "metrics": "node metrics/updateMetrics.js"
+    "metrics": "node metrics/updateMetrics.js",
+    "forfeit": "node tasks/forfeitGame.js"
   },
   "dependencies": {
     "bent": "^7.1.2",
