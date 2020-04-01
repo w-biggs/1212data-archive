@@ -12,7 +12,7 @@ const deleteMetricsGame = async function deleteMetricsGame(gameRef, teamRef) {
     for (let j = 0; j < season.weeks.length; j += 1) {
       const week = season.weeks[j];
       if (week.game && week.game.equals(gameRef)) {
-        metrics.seasons[i].weeks = season.weeks.splice(j, 1);
+        metrics.seasons[i].weeks.splice(j, 1);
         return metrics.save();
       }
     }
