@@ -52,8 +52,10 @@ const calcScore = function calculateWinOrLossScore(teamName, a, baseA,
     if (maxWeek === false || week.weekNo < maxWeek) {
       for (let j = 0; j < week.games.length; j += 1) {
         const game = week.games[j];
-        // Check whether the game involves this team
-        if (game.homeTeam.team.name === teamName || game.awayTeam.team.name === teamName) {
+        // Check whether the game is final and involves this team
+        if (!game.live
+          && (game.homeTeam.team.name === teamName || game.awayTeam.team.name === teamName)
+        ) {
           let gameScore = 0;
 
           const teamIsHome = game.homeTeam.team.name === teamName;
