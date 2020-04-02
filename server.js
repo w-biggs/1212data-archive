@@ -227,11 +227,11 @@ mongoose.connect('mongodb://127.0.0.1:27017/1212', {
           populate: [{
             path: 'homeTeam.team',
             model: Team,
-            select: 'name -_id',
+            select: 'name abbreviation -_id',
           }, {
             path: 'awayTeam.team',
             model: Team,
-            select: 'name -_id',
+            select: 'name abbreviation -_id',
           }, {
             path: 'homeTeam.coaches.coach',
             model: Coach,
