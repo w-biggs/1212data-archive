@@ -11,6 +11,8 @@ const updateGames = require('./tasks/updateGames');
 const Game = require('./models/schedules/game.model');
 const TeamMetrics = require('./models/teamMetrics.model');
 const Team = require('./models/teams/team.model');
+const CoachMetrics = require('./models/coachMetrics.model');
+const Coach = require('./models/coach.model');
 const Division = require('./models/teams/division.model');
 const Conference = require('./models/teams/conference.model');
 // const addOldGames = require('./old_data/oldGames');
@@ -195,6 +197,56 @@ mongoose.connect('mongodb://127.0.0.1:27017/1212', {
       console.log(`${findTime[0]}s ${findTime[1] / 1e6}ms`);
       const metrics = {
         teams: teamMetrics,
+        ranges,
+      };
+      res.send(metrics);
+    });
+
+    app.get('/coachMetrics/', async (req, res) => {
+      const startTime = process.hrtime();
+      const ranges = await CoachMetrics.getRanges();
+      const coachMetrics = await CoachMetrics.find()
+        .lean()
+        .select('-_id')
+        .populate([{
+          path: 'coach',
+          select: '-_id',
+        }, {
+          path: 'weeks.week',
+          model: Week,
+          select: 'weekNo season -_id',
+          populate: {
+            path: 'season',
+            model: Season,
+            select: 'seasonNo -_id',
+          },
+        }, {
+          path: 'weeks.games.game',
+          model: Game,
+          select: 'gameId homeTeam.team awayTeam.team homeTeam.coaches awayTeam.coaches homeTeam.stats.score awayTeam.stats.score -_id',
+          populate: [{
+            path: 'homeTeam.team',
+            model: Team,
+            select: 'name -_id',
+          }, {
+            path: 'awayTeam.team',
+            model: Team,
+            select: 'name -_id',
+          }, {
+            path: 'homeTeam.coaches.coach',
+            model: Coach,
+            select: 'username -_id',
+          }, {
+            path: 'awayTeam.coaches.coach',
+            model: Coach,
+            select: 'username -_id',
+          }],
+        }])
+        .exec();
+      const findTime = process.hrtime(startTime);
+      console.log(`${findTime[0]}s ${findTime[1] / 1e6}ms`);
+      const metrics = {
+        coaches: coachMetrics,
         ranges,
       };
       res.send(metrics);

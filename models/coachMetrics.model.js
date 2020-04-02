@@ -39,11 +39,18 @@ coachMetricsSchema.statics.getRanges = async function getRanges() {
   const fetches = [];
   fetches.push(
     Week.find().lean()
-      .populate('season', 'seasonNo -_id')
+      .populate('season', 'seasonNo')
       .exec(),
     this.find()
       .lean()
-      .populate('weeks.week', 'weekNo -_id')
+      .populate({
+        path: 'weeks.week',
+        select: 'weekNo',
+        populate: {
+          path: 'season',
+          select: 'seasonNo',
+        },
+      })
       .exec(),
   );
   const [weeks, metrics] = await Promise.all(fetches);
@@ -57,11 +64,11 @@ coachMetricsSchema.statics.getRanges = async function getRanges() {
   }));
   for (let i = 0; i < metrics.length; i += 1) {
     const singleMetrics = metrics[i];
-    let rollingElo = 0;
+    let rollingElo = 1500;
     for (let j = 0; j < ranges.length; j += 1) {
       const week = ranges[j];
       const metricsWeek = singleMetrics.weeks.find(
-        mW => mW.week.weekNo === week.weekNo,
+        mW => mW.week.season.seasonNo === week.seasonNo && mW.week.weekNo === week.weekNo,
       );
       if (metricsWeek) {
         const latestGame = metricsWeek.games[metricsWeek.games.length - 1];
