@@ -4,9 +4,12 @@
  */
 const mongoose = require('mongoose');
 const { updateWeekElo } = require('./updateElo');
+const { updateWeekCoachElo } = require('./updateCoachElo');
 const updateSeasonWPN = require('./updateWPN');
 const Team = require('../models/teams/team.model');
 const TeamMetrics = require('../models/teamMetrics.model');
+const Coach = require('../models/coach.model');
+const CoachMetrics = require('../models/coachMetrics.model');
 const Season = require('../models/schedules/season.model');
 const Week = require('../models/schedules/week.model');
 // const Game = require('../models/schedules/game.model');
@@ -17,7 +20,6 @@ const args = process.argv.slice(2);
 
 /**
  * Create new team metrics for teams that don't have them.
- * @param {import('mongoose').Document} teamDoc The team's document.
  */
 const generateMetrics = async function generateMetrics() {
   const teams = await Team.find().exec();
@@ -42,12 +44,38 @@ const generateMetrics = async function generateMetrics() {
 };
 
 /**
+ * Create new coach metrics for coachess that don't have them.
+ */
+const generateCoachMetrics = async function generateCoachMetrics() {
+  const coaches = await Coach.find().exec();
+  const metricFetches = [];
+  for (let i = 0; i < coaches.length; i += 1) {
+    const coach = coaches[i];
+    metricFetches.push(
+      CoachMetrics.findOne({ coach: coach._id })
+        .then((singleCoachMetrics) => {
+          if (!singleCoachMetrics) {
+            console.log(`Creating coach metrics for ${coach.username}`);
+            const newCoachMetrics = new CoachMetrics({
+              coach: coach._id,
+            });
+            return newCoachMetrics.save();
+          }
+          return true;
+        }),
+    );
+  }
+  await Promise.all(metricFetches);
+};
+
+/**
  * Update metrics.
  * @param {Number} seasonNo The season to update metrics for.
  * @param {Number} weekNo The week to update metrics for.
  */
 const updateMetrics = async function updateMetrics(seasonNo = null, weekNo = null) {
   await generateMetrics();
+  await generateCoachMetrics();
 
   if (Number.isNaN(seasonNo) || Number.isNaN(weekNo)) {
     throw new Error('One of your arguments were invalid.');
@@ -75,6 +103,7 @@ const updateMetrics = async function updateMetrics(seasonNo = null, weekNo = nul
 
     for (let j = 0; j < weeks.length; j += 1) {
       const week = weeks[j];
+      await updateWeekCoachElo(week);
       await updateWeekElo(week, season);
     }
   }
