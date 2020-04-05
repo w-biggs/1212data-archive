@@ -15,6 +15,7 @@ const CoachMetrics = require('./models/coachMetrics.model');
 const Coach = require('./models/coach.model');
 const Division = require('./models/teams/division.model');
 const Conference = require('./models/teams/conference.model');
+const Play = require('./models/play.model');
 // const addOldGames = require('./old_data/oldGames');
 // const checkModifiedGames = require('./old_data/checkModifiedGames');
 
@@ -250,6 +251,39 @@ mongoose.connect('mongodb://127.0.0.1:27017/1212', {
         ranges,
       };
       res.send(metrics);
+    });
+
+    app.get('/plays/coach/:username/', async (req, res) => {
+      const { username } = req.params;
+      const coach = await Coach.findOne({ username }).exec();
+      const plays = await Play.find({ $or: [{ 'defense.coach': coach._id }, { 'offense.coach': coach._id }] })
+        .lean()
+        .populate([{
+          path: 'defense.coach',
+          select: 'username',
+        }, {
+          path: 'offense.coach',
+          select: 'username',
+        }, {
+          path: 'game',
+          select: 'gameId startTime',
+        }]);
+      for (let i = 0; i < plays.length; i += 1) {
+        plays[i].coachIsOffense = (plays[i].offense.coach.username === username);
+      }
+      const filteredPlays = plays.filter(play => play.game !== null);
+      filteredPlays.sort((a, b) => {
+        const gameComparison = a.game.startTime - b.game.startTime;
+        if (gameComparison !== 0) {
+          return gameComparison;
+        }
+      
+        const aClock = (a.quarter * 420) + (420 - a.clock);
+        const bClock = (b.quarter * 420) + (420 - b.clock);
+      
+        return aClock - bClock;
+      });
+      res.send(filteredPlays);
     });
 
     const PORT = process.env.PORT || 12121;
