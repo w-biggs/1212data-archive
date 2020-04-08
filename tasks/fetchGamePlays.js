@@ -59,11 +59,22 @@ const parseGist = function parseGist(gistContent, gistFormat) {
     // skip first row, which is the header row
     for (let i = 1; i < rows.length; i += 1) {
       const row = rows[i];
+
+      // Ignore "drive change" markers in new gists (S3W2+)
+      if (row.indexOf('--------') >= 0) {
+        break;
+      }
+
       const cols = row.split('|');
       const [, , quarter, clock, yardLine, offenseTeam, down, distance,
         defNum, offNum, defCoach, offCoach, playType, , result, yards,
         playTime, runoffTime] = cols;
       const homeOffense = (offenseTeam === 'home');
+
+      if (!offCoach || !defCoach) {
+        console.log(gistContent);
+        console.log(row);
+      }
 
       const prefixedOffCoach = `/u/${offCoach.toLowerCase()}`;
       const prefixedDefCoach = `/u/${defCoach.toLowerCase()}`;

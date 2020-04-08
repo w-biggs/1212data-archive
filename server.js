@@ -47,18 +47,21 @@ mongoose.connect('mongodb://127.0.0.1:27017/1212', {
       })
         .populate('games')
         .exec();
-      for (let i = 0; i < currentWeek.games.length; i += 1) {
-        const currentGame = currentWeek.games[i];
-        const gamePos = weekGames.games.indexOf(currentGame.gameId);
-        if (gamePos < 0) {
-          console.log(`${currentGame.gameId} no longer in weekGames, deleting.`);
-          // eslint-disable-next-line no-await-in-loop
-          await Game.deleteOne({ _id: currentGame._id });
-          // eslint-disable-next-line no-await-in-loop
-          await Week.updateOne({ _id: currentWeek._id }, { $pull: { games: currentGame._id } });
-        } else {
-          // Game already exists
-          weekGames.games.splice(gamePos, 1);
+
+      if (currentWeek) {
+        for (let i = 0; i < currentWeek.games.length; i += 1) {
+          const currentGame = currentWeek.games[i];
+          const gamePos = weekGames.games.indexOf(currentGame.gameId);
+          if (gamePos < 0) {
+            console.log(`${currentGame.gameId} no longer in weekGames, deleting.`);
+            // eslint-disable-next-line no-await-in-loop
+            await Game.deleteOne({ _id: currentGame._id });
+            // eslint-disable-next-line no-await-in-loop
+            await Week.updateOne({ _id: currentWeek._id }, { $pull: { games: currentGame._id } });
+          } else {
+            // Game already exists
+            weekGames.games.splice(gamePos, 1);
+          }
         }
       }
 
