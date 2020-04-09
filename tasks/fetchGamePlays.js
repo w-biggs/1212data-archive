@@ -61,78 +61,76 @@ const parseGist = function parseGist(gistContent, gistFormat) {
       const row = rows[i];
 
       // Ignore "drive change" markers in new gists (S3W2+)
-      if (row.indexOf('--------') >= 0) {
-        break;
-      }
-
-      const cols = row.split('|');
-      const [, , quarter, clock, yardLine, offenseTeam, down, distance,
-        defNum, offNum, defCoach, offCoach, playType, , result, yards,
-        playTime, runoffTime] = cols;
-      const homeOffense = (offenseTeam === 'home');
-
-      if (!offCoach || !defCoach) {
-        console.log(gistContent);
-        console.log(row);
-      }
-
-      const prefixedOffCoach = `/u/${offCoach.toLowerCase()}`;
-      const prefixedDefCoach = `/u/${defCoach.toLowerCase()}`;
-
-      // Put home coach in list
-      let foundHome = false;
-      for (let j = 0; j < teamCoaches.home.length; j += 1) {
-        if (teamCoaches.home[j].name === (homeOffense ? prefixedOffCoach : prefixedDefCoach)) {
-          foundHome = true;
-          teamCoaches.home[j].plays += 1;
+      if (row.indexOf('--------') < 0) {
+        const cols = row.split('|');
+        const [, , quarter, clock, yardLine, offenseTeam, down, distance,
+          defNum, offNum, defCoach, offCoach, playType, , result, yards,
+          playTime, runoffTime] = cols;
+        const homeOffense = (offenseTeam === 'home');
+  
+        if (!offCoach || !defCoach) {
+          console.log(gistContent);
+          console.log(row);
         }
-      }
-      if (!foundHome) {
-        teamCoaches.home.push({
-          name: (homeOffense ? prefixedOffCoach : prefixedDefCoach),
-          plays: 1,
+  
+        const prefixedOffCoach = `/u/${offCoach.toLowerCase()}`;
+        const prefixedDefCoach = `/u/${defCoach.toLowerCase()}`;
+  
+        // Put home coach in list
+        let foundHome = false;
+        for (let j = 0; j < teamCoaches.home.length; j += 1) {
+          if (teamCoaches.home[j].name === (homeOffense ? prefixedOffCoach : prefixedDefCoach)) {
+            foundHome = true;
+            teamCoaches.home[j].plays += 1;
+          }
+        }
+        if (!foundHome) {
+          teamCoaches.home.push({
+            name: (homeOffense ? prefixedOffCoach : prefixedDefCoach),
+            plays: 1,
+          });
+        }
+  
+        // Put away coach in list
+        let foundAway = false;
+        for (let j = 0; j < teamCoaches.away.length; j += 1) {
+          if (teamCoaches.away[j].name === (homeOffense ? prefixedDefCoach : prefixedOffCoach)) {
+            foundAway = true;
+            teamCoaches.away[j].plays += 1;
+          }
+        }
+        if (!foundAway) {
+          teamCoaches.away.push({
+            name: (homeOffense ? prefixedDefCoach : prefixedOffCoach),
+            plays: 1,
+          });
+        }
+  
+        const playLength = (playTime === 'None' ? 0 : parseInt(playTime, 10))
+          + (runoffTime === 'None' ? 0 : parseInt(runoffTime, 10));
+  
+        plays.push({
+          playNumber: i,
+          homeOffense,
+          offense: {
+            number: offNum === 'None' ? null : parseInt(offNum, 10),
+            coach: `/u/${offCoach.toLowerCase()}`,
+          },
+          defense: {
+            number: defNum === 'None' ? null : parseInt(defNum, 10),
+            coach: [`/u/${defCoach.toLowerCase()}`],
+          },
+          playType,
+          result: result || 'None',
+          yards: yards === 'None' ? 0 : parseInt(yards, 10),
+          down: parseInt(down, 10),
+          distance: parseInt(distance, 10),
+          yardLine: parseInt(yardLine, 10),
+          quarter: parseInt(quarter, 10),
+          clock: Math.max(parseInt(clock, 10), 0), // can be negative on PATs at end of quarters
+          playLength: Math.max(playLength, 0), // same
         });
       }
-
-      // Put away coach in list
-      let foundAway = false;
-      for (let j = 0; j < teamCoaches.away.length; j += 1) {
-        if (teamCoaches.away[j].name === (homeOffense ? prefixedDefCoach : prefixedOffCoach)) {
-          foundAway = true;
-          teamCoaches.away[j].plays += 1;
-        }
-      }
-      if (!foundAway) {
-        teamCoaches.away.push({
-          name: (homeOffense ? prefixedDefCoach : prefixedOffCoach),
-          plays: 1,
-        });
-      }
-
-      const playLength = (playTime === 'None' ? 0 : parseInt(playTime, 10))
-        + (runoffTime === 'None' ? 0 : parseInt(runoffTime, 10));
-
-      plays.push({
-        playNumber: i,
-        homeOffense,
-        offense: {
-          number: offNum === 'None' ? null : parseInt(offNum, 10),
-          coach: `/u/${offCoach.toLowerCase()}`,
-        },
-        defense: {
-          number: defNum === 'None' ? null : parseInt(defNum, 10),
-          coach: [`/u/${defCoach.toLowerCase()}`],
-        },
-        playType,
-        result: result || 'None',
-        yards: yards === 'None' ? 0 : parseInt(yards, 10),
-        down: parseInt(down, 10),
-        distance: parseInt(distance, 10),
-        yardLine: parseInt(yardLine, 10),
-        quarter: parseInt(quarter, 10),
-        clock: Math.max(parseInt(clock, 10), 0), // can be negative on PATs at end of quarters
-        playLength: Math.max(playLength, 0), // same
-      });
     }
   } else {
     for (let i = 0; i < rows.length; i += 1) {
