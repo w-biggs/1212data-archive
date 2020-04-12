@@ -75,7 +75,8 @@ const calcScore = function calculateWinOrLossScore(teamName, a, baseA,
               );
               gameScore += (a * movModifier);
             }
-            gameScore += calcScore(opp.name, newA, baseA, season, maxWeek,
+
+            gameScore += calcScore(opp.team.name, newA, baseA, season, maxWeek,
               movInfluence, movMultiplier);
             
             score += gameScore;
