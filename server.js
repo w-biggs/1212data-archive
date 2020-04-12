@@ -90,7 +90,7 @@ mongoose.connect('mongodb://127.0.0.1:27017/1212', {
       return next();
     });
 
-    app.get('/games/:seasonNo/:weekNo/:confName?/', async (req, res) => {
+    app.get('/games/:seasonNo?/:weekNo?/:confName?/', async (req, res) => {
       const { seasonNo, weekNo, confName } = req.params;
       let conf = null;
       if (confName) {
@@ -100,41 +100,52 @@ mongoose.connect('mongodb://127.0.0.1:27017/1212', {
         }
       }
 
-      const season = await Season.findOne({ seasonNo });
-      if (season) {
-        const week = await Week.findOne({ season: season._id, weekNo })
-          .populate('season', 'seasonNo');
-        if (week) {
-          week.games = await week.getSortedGames();
-          if (conf) {
-            const filteredGames = [];
-            for (let i = 0; i < week.games.length; i += 1) {
-              const weekGame = week.games[i];
-
-              const homeDiv = weekGame.homeTeam.team.division[seasonNo - 1];
-              const homeConf = homeDiv ? homeDiv.conference.shortName : null;
-
-              const awayDiv = weekGame.awayTeam.team.division[seasonNo - 1];
-              const awayConf = awayDiv ? awayDiv.conference.shortName : null;
-
-              if (!homeDiv) {
-                console.log(weekGame.homeTeam.team.name);
+      if (seasonNo) {
+        const season = await Season.findOne({ seasonNo });
+        if (season) {
+          if (weekNo) {
+            const week = await Week.findOne({ season: season._id, weekNo })
+              .populate('season', 'seasonNo');
+            if (week) {
+              week.games = await week.getSortedGames();
+              if (conf) {
+                const filteredGames = [];
+                for (let i = 0; i < week.games.length; i += 1) {
+                  const weekGame = week.games[i];
+    
+                  const homeDiv = weekGame.homeTeam.team.division[seasonNo - 1];
+                  const homeConf = homeDiv ? homeDiv.conference.shortName : null;
+    
+                  const awayDiv = weekGame.awayTeam.team.division[seasonNo - 1];
+                  const awayConf = awayDiv ? awayDiv.conference.shortName : null;
+    
+                  if (!homeDiv) {
+                    console.log(weekGame.homeTeam.team.name);
+                  }
+                  if (!awayDiv) {
+                    console.log(weekGame.awayTeam.team.name);
+                  }
+    
+                  if (awayConf === confName || homeConf === confName) {
+                    filteredGames.push(weekGame);
+                  }
+                }
+                week.games = filteredGames;
               }
-              if (!awayDiv) {
-                console.log(weekGame.awayTeam.team.name);
-              }
-
-              if (awayConf === confName || homeConf === confName) {
-                filteredGames.push(weekGame);
-              }
+              return res.send(week);
             }
-            week.games = filteredGames;
+            return res.send({ error: 'Week not found.' });
           }
-          return res.send(week);
+          // No week given
+          return res.send({ error: 'A week must be given if a season is requested.' });
         }
-        return res.send({ error: 'Week not found.' });
+        return res.send({ error: 'Season not found.' });
       }
-      return res.send({ error: 'Season not found.' });
+
+      // No season given
+      const games = await Game.find().lean().exec();
+      games.sort((a, b) => a.startTime - b.startTime);
+      return res.send(games);
     });
 
     app.get('/seasons/', async (req, res) => {
