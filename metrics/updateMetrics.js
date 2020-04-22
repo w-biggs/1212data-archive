@@ -111,12 +111,16 @@ const updateMetrics = async function updateMetrics(seasonNo = null, weekNo = nul
   await updateSeasonWPN(seasonNo);
 };
 
-mongoose.connect('mongodb://127.0.0.1:27017/1212', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-  useCreateIndex: true,
-})
-  .catch(console.error)
-  .then(() => updateMetrics(...args.map(arg => parseInt(arg, 10))))
-  .then(() => mongoose.disconnect())
-  .catch(console.error);
+if (!module.parent) {
+  mongoose.connect('mongodb://127.0.0.1:27017/1212', {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    useCreateIndex: true,
+  })
+    .catch(console.error)
+    .then(() => updateMetrics(...args.map(arg => parseInt(arg, 10))))
+    .then(() => mongoose.disconnect())
+    .catch(console.error);
+}
+
+module.exports = updateMetrics;

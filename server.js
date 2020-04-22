@@ -8,6 +8,7 @@ const weekGames = require('./weekGames.json');
 const { addGame } = require('./tasks/addGame');
 const fetchGameInfo = require('./tasks/fetchGameInfo');
 const updateGames = require('./tasks/updateGames');
+const updateMetrics = require('./metrics/updateMetrics');
 const Game = require('./models/schedules/game.model');
 const TeamMetrics = require('./models/teamMetrics.model');
 const Team = require('./models/teams/team.model');
@@ -166,7 +167,20 @@ mongoose.connect('mongodb://127.0.0.1:27017/1212', {
       res.send(confs);
     });
 
+    app.get('/calc-metrics/:seasonNo/:weekNo/', async (req, res) => {
+      const { seasonNo, weekNo } = req.params;
+      const startTime = process.hrtime();
+      try {
+        await updateMetrics(seasonNo, weekNo);
+        const updateTime = process.hrtime(startTime);
+        res.send(`Updated in ${updateTime[0]}s ${updateTime[1] / 1e6}ms`);
+      } catch (error) {
+        res.send(error);
+      }
+    });
+
     app.get('/metrics/', async (req, res) => {
+      const metrics = {};
       const startTime = process.hrtime();
       const ranges = await TeamMetrics.getRanges();
       const teamMetrics = await TeamMetrics.find()
@@ -209,11 +223,9 @@ mongoose.connect('mongodb://127.0.0.1:27017/1212', {
         }])
         .exec();
       const findTime = process.hrtime(startTime);
-      console.log(`${findTime[0]}s ${findTime[1] / 1e6}ms`);
-      const metrics = {
-        teams: teamMetrics,
-        ranges,
-      };
+      metrics.teams = teamMetrics;
+      metrics.ranges = ranges;
+      metrics.fetchTime = `${findTime[0]}s ${findTime[1] / 1e6}ms`;
       res.send(metrics);
     });
 
