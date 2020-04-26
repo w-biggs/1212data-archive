@@ -94,7 +94,7 @@ class TeamStats {
 
     this.offenseStats.turnovers = this.offenseStats.interceptions + this.offenseStats.fumbles;
     this.defenseStats.turnovers = this.defenseStats.interceptions + this.defenseStats.fumbles;
-    this.turnoverDiff = this.offenseStats.turnovers - this.defenseStats.turnovers;
+    this.turnoverDiff = this.defenseStats.turnovers - this.offenseStats.turnovers;
 
     const expectedWinPercentage = (this.offenseStats.points ** 2.37)
       / ((this.offenseStats.points ** 2.37) + (this.defenseStats.points ** 2.37));
