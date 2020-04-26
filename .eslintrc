@@ -3,7 +3,7 @@
     "no-underscore-dangle": [
       "error",
       {
-        "allow": ["_id"] // Mongoose uses _id
+        "allow": ["_id", "_doc"] // Mongoose uses _id and _doc
       }
     ]
   }

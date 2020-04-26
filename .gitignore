@@ -5,3 +5,5 @@ node_modules/
 dump/
 weekGames.json
 analysis/
+.idea/
+yarn-error.log

@@ -8,6 +8,7 @@ const weekGames = require('./weekGames.json');
 const { addGame } = require('./tasks/addGame');
 const fetchGameInfo = require('./tasks/fetchGameInfo');
 const updateGames = require('./tasks/updateGames');
+const TeamStats = require('./tasks/TeamStats');
 const updateMetrics = require('./metrics/updateMetrics');
 const Game = require('./models/schedules/game.model');
 const TeamMetrics = require('./models/teamMetrics.model');
@@ -137,8 +138,27 @@ mongoose.connect('mongodb://127.0.0.1:27017/1212', {
             }
             return res.send({ error: 'Week not found.' });
           }
+          const games = [];
+          const weekGameFetches = [];
           // No week given
-          return res.send({ error: 'A week must be given if a season is requested.' });
+          const weeks = await Week.find({ season: season._id }).exec();
+          for (let i = 0; i < weeks.length; i += 1) {
+            weekGameFetches.push(weeks[i].getSortedGames());
+          }
+          const weeksGames = await Promise.all(weekGameFetches);
+          for (let i = 0; i < weeksGames.length; i += 1) {
+            const week = weeksGames[i];
+            for (let j = 0; j < week.length; j += 1) {
+              const game = week[j];
+              if (!game.live) {
+                games.push(game);
+              }
+            }
+          }
+          return res.send({
+            ...season._doc,
+            games,
+          });
         }
         return res.send({ error: 'Season not found.' });
       }
@@ -147,6 +167,45 @@ mongoose.connect('mongodb://127.0.0.1:27017/1212', {
       const games = await Game.find().lean().exec();
       games.sort((a, b) => a.startTime - b.startTime);
       return res.send(games);
+    });
+
+    app.get('/stats/:seasonNo', async (req, res) => {
+      const { seasonNo } = req.params;
+      const season = await Season.findOne({ seasonNo });
+      const weekGameFetches = [];
+      const teams = [];
+      // No week given
+      const weeks = await Week.find({ season: season._id }).exec();
+      for (let i = 0; i < weeks.length; i += 1) {
+        weekGameFetches.push(weeks[i].getSortedGames());
+      }
+      const weeksGames = await Promise.all(weekGameFetches);
+      for (let i = 0; i < weeksGames.length; i += 1) {
+        const week = weeksGames[i];
+        for (let j = 0; j < week.length; j += 1) {
+          const game = week[j];
+          if (!game.live) {
+            const homeTeamIndex = teams.findIndex(team => team.name === game.homeTeam.team.name);
+            if (homeTeamIndex < 0) {
+              const teamStats = new TeamStats(game.homeTeam.team.name);
+              teamStats.addGame(game.homeTeam.stats, game.awayTeam.stats);
+              teams.push(teamStats);
+            } else {
+              teams[homeTeamIndex].addGame(game.homeTeam.stats, game.awayTeam.stats);
+            }
+            const awayTeamIndex = teams.findIndex(team => team.name === game.awayTeam.team.name);
+            if (awayTeamIndex < 0) {
+              const teamStats = new TeamStats(game.awayTeam.team.name);
+              teamStats.addGame(game.awayTeam.stats, game.homeTeam.stats);
+              teams.push(teamStats);
+            } else {
+              teams[awayTeamIndex].addGame(game.awayTeam.stats, game.homeTeam.stats);
+            }
+          }
+        }
+      }
+      teams.sort((a, b) => a.name.localeCompare(b.name));
+      res.send(teams);
     });
 
     app.get('/seasons/', async (req, res) => {
