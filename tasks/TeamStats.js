@@ -4,47 +4,6 @@ class TeamStats {
     this.wins = 0;
     this.losses = 0;
     this.ties = 0;
-    this.timeOfPossession = 0;
-    this.gameTime = 0;
-    this.offenseStats = {
-      passYds: 0,
-      rushYds: 0,
-      interceptions: 0,
-      fumbles: 0,
-      fieldGoals: {
-        attempts: 0,
-        makes: 0,
-      },
-      points: 0,
-      // Dynamic stats
-      yards: 0,
-      turnovers: 0,
-      adjPointsPG: 0,
-      timeOfPossessionP28: 0,
-      adjPassYdsPG: 0,
-      adjRushYdsPG: 0,
-      adjYardsPG: 0,
-    };
-    this.defenseStats = {
-      passYds: 0,
-      rushYds: 0,
-      interceptions: 0,
-      fumbles: 0,
-      fieldGoals: {
-        attempts: 0,
-        makes: 0,
-      },
-      points: 0,
-      // Dynamic stats
-      yards: 0,
-      turnovers: 0,
-      adjPointsPG: 0,
-      timeOfPossessionP28: 0,
-      adjPassYdsPG: 0,
-      adjRushYdsPG: 0,
-      adjYardsPG: 0,
-    };
-    // Dynamic stats
     this.pointDiff = 0;
     this.adjPointDiffPG = 0;
     this.yardDiff = 0;
@@ -54,6 +13,44 @@ class TeamStats {
     this.expectedLosses = 0;
     this.expectedDiff = 0;
     this.timePG = 0;
+    this.timeOfPossession = 0;
+    this.gameTime = 0;
+    this.offenseStats = {
+      passYds: 0,
+      rushYds: 0,
+      yards: 0,
+      interceptions: 0,
+      fumbles: 0,
+      turnovers: 0,
+      fieldGoals: {
+        attempts: 0,
+        makes: 0,
+      },
+      points: 0,
+      adjPointsPG: 0,
+      timeOfPossessionP28: 0,
+      adjPassYdsPG: 0,
+      adjRushYdsPG: 0,
+      adjYardsPG: 0,
+    };
+    this.defenseStats = {
+      passYds: 0,
+      rushYds: 0,
+      yards: 0,
+      interceptions: 0,
+      fumbles: 0,
+      turnovers: 0,
+      fieldGoals: {
+        attempts: 0,
+        makes: 0,
+      },
+      points: 0,
+      adjPointsPG: 0,
+      timeOfPossessionP28: 0,
+      adjPassYdsPG: 0,
+      adjRushYdsPG: 0,
+      adjYardsPG: 0,
+    };
   }
 
   addGame(teamStats, oppStats) {
@@ -120,7 +117,25 @@ class TeamStats {
     this.defenseStats.adjRushYdsPG = (this.defenseStats.rushYds * adj) / gameCount;
     this.defenseStats.adjYardsPG = (this.defenseStats.yards * adj) / gameCount;
 
-    return this;
+    return {
+      name: this.name,
+      wins: this.wins,
+      losses: this.losses,
+      ties: this.ties,
+      pointDiff: this.pointDiff,
+      adjPointDiffPG: this.adjPointDiffPG,
+      yardDiff: this.yardDiff,
+      adjYardDiffPG: this.adjYardDiffPG,
+      turnoverDiff: this.turnoverDiff,
+      expectedWins: this.expectedWins,
+      expectedLosses: this.expectedLosses,
+      expectedDiff: this.expectedDiff,
+      timePG: this.timePG,
+      timeOfPossession: this.timeOfPossession,
+      gameTime: this.gameTime,
+      offenseStats: this.offenseStats,
+      defenseStats: this.defenseStats,
+    };
   }
 }
 
