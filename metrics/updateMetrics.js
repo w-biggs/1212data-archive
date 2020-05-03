@@ -118,7 +118,7 @@ if (!module.parent) {
     useCreateIndex: true,
   })
     .catch(console.error)
-    .then(() => updateMetrics(...args.map(arg => parseInt(arg, 10))))
+    .then(() => updateMetrics(...args.map((arg) => parseInt(arg, 10))))
     .then(() => mongoose.disconnect())
     .catch(console.error);
 }

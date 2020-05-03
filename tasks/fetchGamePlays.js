@@ -18,12 +18,12 @@ const fetchGist = function fetchGistContents(gist) {
       // Temporary data holder
       const body = [];
       // Push chunks to the body array
-      response.on('data', chunk => body.push(chunk));
+      response.on('data', (chunk) => body.push(chunk));
       // Join chunks and resolve promise
       response.on('end', () => resolve(body.join('')));
     });
     // Handle connection errors
-    request.on('error', err => reject(err));
+    request.on('error', (err) => reject(err));
   });
 };
 

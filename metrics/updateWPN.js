@@ -66,7 +66,7 @@ const updateSeasonWPN = async function updateSeasonWPN(seasonNo) {
   for (let i = 0; i < teams.length; i += 1) {
     const team = teams[i];
     const teamUpdate = generateTeamScore(team.name, season, false, 0.25, medMov)
-      .then(wPN => updateTeamWPN(team, season, wPN.score));
+      .then((wPN) => updateTeamWPN(team, season, wPN.score));
     updates.push(teamUpdate);
   }
 

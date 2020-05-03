@@ -262,7 +262,7 @@ const parsePlayComment = function parsePlayComment(
     const numbersRegex = /Offense: ([0-9]+)\n+Defense: ([0-9]+)/gm;
     const numbersMatch = numbersRegex.exec(resultComment.body);
     if (numbersMatch) {
-      [, offNum, defNum] = numbersMatch.map(num => parseInt(num, 10));
+      [, offNum, defNum] = numbersMatch.map((num) => parseInt(num, 10));
     }
 
     // Play length

@@ -72,7 +72,7 @@ mongoose.connect('mongodb://127.0.0.1:27017/1212', {
         const weekGame = weekGames.games[i];
         // eslint-disable-next-line no-await-in-loop
         await fetchGameInfo(weekGame)
-          .then(gameInfo => addGame(gameInfo, weekGames.seasonNo, weekGames.weekNo))
+          .then((gameInfo) => addGame(gameInfo, weekGames.seasonNo, weekGames.weekNo))
           .catch((error) => {
             throw error;
           });
@@ -185,7 +185,7 @@ mongoose.connect('mongodb://127.0.0.1:27017/1212', {
         for (let j = 0; j < week.length; j += 1) {
           const game = week[j];
           if (!game.live) {
-            const homeTeamIndex = teams.findIndex(team => team.name === game.homeTeam.team.name);
+            const homeTeamIndex = teams.findIndex((team) => team.name === game.homeTeam.team.name);
             if (homeTeamIndex < 0) {
               const teamStats = new TeamStats(game.homeTeam.team.name);
               teamStats.addGame(game.homeTeam.stats, game.awayTeam.stats);
@@ -193,7 +193,7 @@ mongoose.connect('mongodb://127.0.0.1:27017/1212', {
             } else {
               teams[homeTeamIndex].addGame(game.homeTeam.stats, game.awayTeam.stats);
             }
-            const awayTeamIndex = teams.findIndex(team => team.name === game.awayTeam.team.name);
+            const awayTeamIndex = teams.findIndex((team) => team.name === game.awayTeam.team.name);
             if (awayTeamIndex < 0) {
               const teamStats = new TeamStats(game.awayTeam.team.name);
               teamStats.addGame(game.awayTeam.stats, game.homeTeam.stats);
@@ -356,7 +356,7 @@ mongoose.connect('mongodb://127.0.0.1:27017/1212', {
       for (let i = 0; i < plays.length; i += 1) {
         plays[i].coachIsOffense = (plays[i].offense.coach.username === username);
       }
-      const filteredPlays = plays.filter(play => play.game !== null);
+      const filteredPlays = plays.filter((play) => play.game !== null);
       filteredPlays.sort((a, b) => {
         const gameComparison = a.game.startTime - b.game.startTime;
         if (gameComparison !== 0) {

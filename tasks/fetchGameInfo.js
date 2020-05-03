@@ -54,20 +54,20 @@ const parseGameStats = function parseGameStats(postBody) {
 
   [, awayStats.passYds, awayStats.rushYds, awayStats.interceptions, awayStats.fumbles,
     awayStats.fieldGoals.makes, awayStats.fieldGoals.attempts, awayMins, awaySecs,
-    awayStats.timeoutsRemaining] = awayStatsMatch.map(match => parseInt(match, 10));
+    awayStats.timeoutsRemaining] = awayStatsMatch.map((match) => parseInt(match, 10));
   awayStats.timeOfPossession = (awayMins * 60) + awaySecs;
 
   [, homeStats.passYds, homeStats.rushYds, homeStats.interceptions, homeStats.fumbles,
     homeStats.fieldGoals.makes, homeStats.fieldGoals.attempts, homeMins, homeSecs,
-    homeStats.timeoutsRemaining] = homeStatsMatch.map(match => parseInt(match, 10));
+    homeStats.timeoutsRemaining] = homeStatsMatch.map((match) => parseInt(match, 10));
   homeStats.timeOfPossession = (homeMins * 60) + homeSecs;
 
   const scoreRegex = /\|([0-9|]+)\|\*\*([0-9]+)/g;
   const homeScoreMatch = scoreRegex.exec(postBody);
   const awayScoreMatch = scoreRegex.exec(postBody);
-  homeStats.score.quarters = homeScoreMatch[1].split('|').map(q => parseInt(q, 10));
+  homeStats.score.quarters = homeScoreMatch[1].split('|').map((q) => parseInt(q, 10));
   homeStats.score.final = parseInt(homeScoreMatch[2], 10);
-  awayStats.score.quarters = awayScoreMatch[1].split('|').map(q => parseInt(q, 10));
+  awayStats.score.quarters = awayScoreMatch[1].split('|').map((q) => parseInt(q, 10));
   awayStats.score.final = parseInt(awayScoreMatch[2], 10);
 
   return {
@@ -136,8 +136,8 @@ const parseGameJson = function parseGameJson(gameJson, gameId) {
       gameObj.homeTeam.team, homeCoach, gameObj.homeTeam.offense,
       gameObj.homeTeam.defense] = teamInfoMatch;
     
-    gameObj.homeTeam.coaches = homeCoach.split(' and ').map(coach => ({ name: coach, plays: 0 }));
-    gameObj.awayTeam.coaches = awayCoach.split(' and ').map(coach => ({ name: coach, plays: 0 }));
+    gameObj.homeTeam.coaches = homeCoach.split(' and ').map((coach) => ({ name: coach, plays: 0 }));
+    gameObj.awayTeam.coaches = awayCoach.split(' and ').map((coach) => ({ name: coach, plays: 0 }));
   } else {
     // Filters out things like "RESTARTED - NEXT SCORE WINS South Dakota"
     const oldTeamInfoRegex = /\[GAME THREAD\] (?:#[0-9]+ )?(?:\(.+\) )?(?:.+[A-Z]{4,} )?(.+) @ (?:#[0-9]+ )?(?:\(.+\) )?(?:.+[A-Z]{4,} )?(.+)/;
@@ -221,7 +221,7 @@ const getCoachRef = function getCoachRefFromUsername(username) {
         console.log(`Coach ${plainUsername} not found in database.`);
         const newCoach = new Coach({ username: plainUsername });
         return newCoach.save()
-          .then(savedCoach => savedCoach._id);
+          .then((savedCoach) => savedCoach._id);
       }
       return coach._id;
     });
@@ -309,7 +309,7 @@ const fillCoachRefs = function fillCoachRefs(coaches) {
     const coach = coaches[i];
     coachPromises.push(
       getCoachRef(coach.name)
-        .then(coachId => ({
+        .then((coachId) => ({
           coach: coachId,
           ...coach,
         })),

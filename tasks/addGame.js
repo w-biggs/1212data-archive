@@ -109,7 +109,7 @@ const addGame = function addGameToDatabase(gameInfo, seasonNo, weekNo, doTimeChe
         return game;
       }
       return getSeason(seasonNo)
-        .then(season => getWeek(weekNo, season)) // add week
+        .then((season) => getWeek(weekNo, season)) // add week
         .then((week) => {
           console.log(`Adding game ${gameInfo.gameId} in season ${seasonNo} week ${weekNo}`);
           const gamePlays = gameInfo.plays;

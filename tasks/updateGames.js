@@ -1,7 +1,7 @@
 const Season = require('../models/schedules/season.model');
 const Week = require('../models/schedules/week.model');
-const { addGame } = require('../tasks/addGame');
-const fetchGameInfo = require('../tasks/fetchGameInfo');
+const { addGame } = require('./addGame');
+const fetchGameInfo = require('./fetchGameInfo');
 
 const updateGames = async function updateCurrentWeekGames(seasonNo, weekNo, fresh) {
   console.log('Starting game update.');
@@ -15,7 +15,7 @@ const updateGames = async function updateCurrentWeekGames(seasonNo, weekNo, fres
         if (week.games[i].live) {
           // eslint-disable-next-line no-await-in-loop
           const updatedGame = await fetchGameInfo(week.games[i].gameId)
-            .then(gameInfo => addGame(gameInfo, seasonNo, weekNo, !fresh));
+            .then((gameInfo) => addGame(gameInfo, seasonNo, weekNo, !fresh));
 
           // eslint-disable-next-line no-await-in-loop
           const populatedGame = await updatedGame

@@ -38,7 +38,7 @@ const updateCoachElo = async function updateCoachElo(
   }
 
   // Find the week
-  const eloGame = eloWeek.games.find(eG => eG.game.equals(game._id));
+  const eloGame = eloWeek.games.find((eG) => eG.game.equals(game._id));
   if (!eloGame) {
     console.log(`Updating week ${week.weekNo} in ${coach.username} metrics`);
     eloWeek.games.push({

@@ -15,7 +15,7 @@ if (args.length !== 2) {
   process.exit(1);
 }
 
-const [seasonNo, weekNo] = args.map(arg => parseInt(arg, 10));
+const [seasonNo, weekNo] = args.map((arg) => parseInt(arg, 10));
 
 const reddit = new Snoowrap(config);
 
@@ -97,7 +97,7 @@ const getID = function getGameIDForTeam(teamName) {
     time: 'day',
     sort: 'new',
   })
-    .then(games => ({
+    .then((games) => ({
       games,
       teamName,
     }));
@@ -166,7 +166,7 @@ mongoose.connect('mongodb://127.0.0.1:27017/1212', {
   .then(() => {
     Team.find({ 'division.2': { $not: { $eq: null } } })
       .then((teams) => {
-        const teamNames = teams.map(team => ({ name: team.name, done: false }));
+        const teamNames = teams.map((team) => ({ name: team.name, done: false }));
         doTeamIDs(teamNames)
           .then((ids) => {
             writeGames({

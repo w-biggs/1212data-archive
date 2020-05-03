@@ -14,7 +14,7 @@ const getJson = bent('json', {
 const fetchGameJson = async function fetchGameJson(gameId) {
   const rawPost = await getJson(`https://api.reddit.com/comments/${gameId}/api/info.json?limit=500&depth=10`);
   const postInfo = rawPost[0].data.children[0].data;
-  const comments = rawPost[1].data.children.map(comment => comment.data);
+  const comments = rawPost[1].data.children.map((comment) => comment.data);
   if (rawPost[1].data.children[comments.length - 1].kind === 'more') {
     console.log('encountered a "more"!');
   }
