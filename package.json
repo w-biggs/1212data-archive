@@ -9,6 +9,8 @@
   "scripts": {
     "push": "rsync -rzh --exclude 'node_modules/' --info=progress2 --no-inc-recursive --delete ./ server:/srv/1212data",
     "dumpPush": "rm -r dump/ && mongodump --db 1212 --gzip && rsync -rzh --exclude 'node_modules/' --info=progress2 --no-inc-recursive --delete ./ server:/srv/1212data",
+    "dumpGet": "rsync -rzh --info=progress2 --no-inc-recursive --delete server:/srv/1212data/dump ./",
+    "dumpRestore": "mongorestore --drop --gzip --db 1212 dump/1212",
     "start": "node server.js",
     "metrics": "node metrics/updateMetrics.js",
     "forfeit": "node tasks/forfeitGame.js",
