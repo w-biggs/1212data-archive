@@ -9,6 +9,7 @@ const { addGame } = require('./tasks/addGame');
 const fetchGameInfo = require('./tasks/fetchGameInfo');
 const updateGames = require('./tasks/updateGames');
 const TeamStats = require('./tasks/TeamStats');
+const compileStandings = require('./tasks/standings');
 const updateMetrics = require('./metrics/updateMetrics');
 const Game = require('./models/schedules/game.model');
 const TeamMetrics = require('./models/teamMetrics.model');
@@ -369,6 +370,15 @@ mongoose.connect('mongodb://127.0.0.1:27017/1212', {
         return aClock - bClock;
       });
       res.send(filteredPlays);
+    });
+
+    app.get('/standings/:seasonNo?/', async (req, res) => {
+      let { seasonNo } = req.params;
+      if (!seasonNo) {
+        seasonNo = weekGames.seasonNo;
+      }
+      const standings = await compileStandings(seasonNo);
+      res.send(standings);
     });
 
     const PORT = process.env.PORT || 12121;
