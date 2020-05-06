@@ -3,12 +3,15 @@
  */
 const fs = require('fs');
 const readline = require('readline');
-const Snoowrap = require('snoowrap');
+const bent = require('bent');
 const mongoose = require('mongoose');
 const Team = require('./models/teams/team.model');
-const config = require('./.config');
 
 const args = process.argv.slice(2);
+
+const getJson = bent('json', {
+  'User-Agent': 'linux:1212data:v1.0.0 (by /u/jokullmusic)',
+});
 
 if (args.length !== 2) {
   console.log(`Requires two arguments - season and week numbers. ${args.length} arguments were given.`);
@@ -16,8 +19,6 @@ if (args.length !== 2) {
 }
 
 const [seasonNo, weekNo] = args.map((arg) => parseInt(arg, 10));
-
-const reddit = new Snoowrap(config);
 
 const rl = readline.createInterface({
   input: process.stdin,
@@ -90,17 +91,14 @@ const ask = function ask(response) {
  * Get new game IDs for the given team.
  * @param {String} teamName The team name to check for games for.
  */
-const getID = function getGameIDForTeam(teamName) {
-  // reddit.config({ requestDelay: 1000 }); // Rate limits...
-  return reddit.getSubreddit('FakeCollegeFootball').search({
-    query: `-flair:"Post Game Thread" title:"${teamName}"`,
-    time: 'day',
-    sort: 'new',
-  })
-    .then((games) => ({
-      games,
-      teamName,
-    }));
+const getID = async function getGameIDForTeam(teamName) {
+  const query = `-flair:"Post Game Thread" title:"${teamName}"`;
+  const results = await getJson(`https://api.reddit.com/r/FakeCollegeFootball/search.json?q=${query}&sort=new&restrict_sr=on&t=day`);
+  const threads = results.data.children.map((result) => result.data);
+  return {
+    games: threads,
+    teamName,
+  };
 };
 
 /**
