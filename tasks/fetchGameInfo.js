@@ -81,7 +81,7 @@ const parseGameJson = function parseGameJson(gameJson, gameId) {
 
   const gameObj = {
     gameId,
-    startTime: gameJson.created,
+    startTime: gameJson.created_utc,
     endTime: gameJson.edited,
     homeTeam: {
       team: '',
