@@ -302,24 +302,26 @@ const compileStandings = async function compileStandings(seasonNo) {
     if (week.weekNo < 13) {
       for (let j = 0; j < week.games.length; j += 1) {
         const game = week.games[j];
-        conferences = updateTeam(
-          conferences,
-          game.homeTeam.team,
-          game.awayTeam.team,
-          game.homeTeam.stats.score.final,
-          game.awayTeam.stats.score.final,
-          seasonNo,
-          week.weekNo,
-        );
-        conferences = updateTeam(
-          conferences,
-          game.awayTeam.team,
-          game.homeTeam.team,
-          game.awayTeam.stats.score.final,
-          game.homeTeam.stats.score.final,
-          seasonNo,
-          week.weekNo,
-        );
+        if (!game.live) {
+          conferences = updateTeam(
+            conferences,
+            game.homeTeam.team,
+            game.awayTeam.team,
+            game.homeTeam.stats.score.final,
+            game.awayTeam.stats.score.final,
+            seasonNo,
+            week.weekNo,
+          );
+          conferences = updateTeam(
+            conferences,
+            game.awayTeam.team,
+            game.homeTeam.team,
+            game.awayTeam.stats.score.final,
+            game.homeTeam.stats.score.final,
+            seasonNo,
+            week.weekNo,
+          );
+        }
       }
     }
   }
