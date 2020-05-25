@@ -173,8 +173,8 @@ const statsRoute = async function statsRoute(req, res) {
  * @param {import('express').Response} res The response.
  */
 const metricsRoute = async function metricsRoute(req, res) {
+  const { sheets } = req.params;
   const startTime = process.hrtime();
-  const metrics = {};
   const ranges = await TeamMetrics.getRanges();
   const teamMetrics = await TeamMetrics.find()
     .lean()
@@ -214,11 +214,24 @@ const metricsRoute = async function metricsRoute(req, res) {
         select: 'name -_id',
       }],
     }]);
-  metrics.teams = teamMetrics;
-  metrics.ranges = ranges;
-  const findTime = process.hrtime(startTime);
-  metrics.fetchTime = `${findTime[0]}s ${findTime[1] / 1e6}ms`;
-  res.send(metrics);
+  if (sheets === 'sheets') {
+    const csv = [['Team Name', 'Elo', 'wP-N']];
+    for (let i = 0; i < teamMetrics.length; i += 1) {
+      const teamMetric = teamMetrics[i];
+      const latestSeason = teamMetric.seasons[teamMetric.seasons.length - 1];
+      const latestWeek = latestSeason.weeks[latestSeason.weeks.length - 1];
+      csv.push([teamMetric.team.name, latestWeek.elo.elo, latestSeason.wPN]);
+    }
+    res.send(csv.map((row) => row.join(',')).join('\n'));
+  } else {
+    const metrics = {
+      teams: teamMetrics,
+      ranges,
+    };
+    const findTime = process.hrtime(startTime);
+    metrics.fetchTime = `${findTime[0]}s ${findTime[1] / 1e6}ms`;
+    res.send(metrics);
+  }
 };
 
 /**
@@ -342,7 +355,7 @@ const setupRoutes = function setupExpressRoutes(app, currentSeasonNo) {
   app.get('/confs/', confsRoute);
   app.get('/standings/:seasonNo?/', standingsRoute.bind(null, currentSeasonNo));
   app.get('/stats/:seasonNo/', statsRoute);
-  app.get('/metrics/', metricsRoute);
+  app.get('/metrics/:sheets?/', metricsRoute);
   app.get('/coachMetrics/', coachMetricsRoute);
   app.get('/calc-metrics/:seasonNo/:weekNo/', calcMetricsRoute);
   app.get('/plays/coach/:username/', coachPlaysRoute);
