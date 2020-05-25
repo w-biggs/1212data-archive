@@ -15,6 +15,8 @@ class TeamStats {
     this.timePG = 0;
     this.timeOfPossession = 0;
     this.gameTime = 0;
+    this.opponents = [];
+    this.sos = 0.0;
     this.offenseStats = {
       passYds: 0,
       rushYds: 0,
@@ -53,7 +55,8 @@ class TeamStats {
     };
   }
 
-  addGame(teamStats, oppStats) {
+  addGame(teamStats, oppStats, oppName) {
+    this.opponents.push(oppName);
     const margin = teamStats.score.final - oppStats.score.final;
     if (margin > 0) {
       this.wins += 1;
@@ -78,6 +81,28 @@ class TeamStats {
     this.defenseStats.fieldGoals.attempts += oppStats.fieldGoals.attempts;
     this.defenseStats.fieldGoals.makes += oppStats.fieldGoals.makes;
     this.defenseStats.points += oppStats.score.final;
+  }
+
+  calcSOS(teamsStats) {
+    let oppWins = 0;
+    let oppLosses = 0;
+    let oppTies = 0;
+
+    for (let i = 0; i < this.opponents.length; i += 1) {
+      const opponentName = this.opponents[i];
+      for (let j = 0; j < teamsStats.length; j += 1) {
+        const teamStat = teamsStats[j];
+        if (teamStat.name === opponentName) {
+          oppWins += teamStat.wins;
+          oppLosses += teamStat.losses;
+          oppTies += teamStat.ties;
+          break;
+        }
+      }
+    }
+
+    this.sos = (oppWins + (oppTies / 2)) / (oppWins + oppLosses + oppTies);
+    console.log(oppWins, oppLosses, oppTies);
   }
 
   toJSON() {
@@ -131,6 +156,7 @@ class TeamStats {
       expectedLosses: this.expectedLosses,
       expectedDiff: this.expectedDiff,
       timePG: this.timePG,
+      sos: this.sos,
       timeOfPossession: this.timeOfPossession,
       gameTime: this.gameTime,
       offenseStats: this.offenseStats,

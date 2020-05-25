@@ -147,21 +147,30 @@ const statsRoute = async function statsRoute(req, res) {
         const homeTeamIndex = teamsStats.findIndex((team) => team.name === game.homeTeam.team.name);
         if (homeTeamIndex < 0) {
           const teamStats = new TeamStats(game.homeTeam.team.name);
-          teamStats.addGame(game.homeTeam.stats, game.awayTeam.stats);
+          teamStats.addGame(game.homeTeam.stats, game.awayTeam.stats, game.awayTeam.team.name);
           teamsStats.push(teamStats);
         } else {
-          teamsStats[homeTeamIndex].addGame(game.homeTeam.stats, game.awayTeam.stats);
+          teamsStats[homeTeamIndex].addGame(
+            game.homeTeam.stats, game.awayTeam.stats, game.awayTeam.team.name,
+          );
         }
         const awayTeamIndex = teamsStats.findIndex((team) => team.name === game.awayTeam.team.name);
         if (awayTeamIndex < 0) {
           const teamStats = new TeamStats(game.awayTeam.team.name);
-          teamStats.addGame(game.awayTeam.stats, game.homeTeam.stats);
+          teamStats.addGame(game.awayTeam.stats, game.homeTeam.stats, game.homeTeam.team.name);
           teamsStats.push(teamStats);
         } else {
-          teamsStats[awayTeamIndex].addGame(game.awayTeam.stats, game.homeTeam.stats);
+          teamsStats[awayTeamIndex].addGame(
+            game.awayTeam.stats, game.homeTeam.stats, game.homeTeam.team.name,
+          );
         }
       }
     }
+  }
+  // SoS
+  for (let i = 0; i < teamsStats.length; i += 1) {
+    const teamStats = teamsStats[i];
+    teamStats.calcSOS(teamsStats);
   }
   teamsStats.sort((a, b) => a.name.localeCompare(b.name));
   res.send(teamsStats);
