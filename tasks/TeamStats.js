@@ -101,8 +101,11 @@ class TeamStats {
       }
     }
 
+    oppWins -= this.losses;
+    oppLosses -= this.wins;
+    oppTies -= this.ties;
+
     this.sos = (oppWins + (oppTies / 2)) / (oppWins + oppLosses + oppTies);
-    console.log(oppWins, oppLosses, oppTies);
   }
 
   toJSON() {

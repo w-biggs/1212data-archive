@@ -131,7 +131,7 @@ const standingsRoute = async function standingsRoute(currentSeasonNo, req, res) 
 const statsRoute = async function statsRoute(req, res) {
   const { seasonNo } = req.params;
   const season = await Season.findOne({ seasonNo });
-  const seasonWeeks = await Week.find({ season: season._id });
+  const seasonWeeks = await Week.find({ season: season._id, weekNo: { $lte: 13 } });
   const sortedWeekFetches = [];
   for (let i = 0; i < seasonWeeks.length; i += 1) {
     sortedWeekFetches.push(seasonWeeks[i].getSortedGames());
