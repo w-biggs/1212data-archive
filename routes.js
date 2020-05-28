@@ -19,29 +19,66 @@ const Coach = require('./models/coach.model');
 const Play = require('./models/play.model');
 
 /**
+ * Adds the value of process.hrtime(); in milliseconds to an object to output.
+ * @param {Object} object The object to output.
+ * @param {Number[]} startTime The array output by process.hrtime();
+ */
+const outputWithHrtime = function outputWithHrtime(object, startTime) {
+  const endTime = process.hrtime(startTime);
+  return {
+    ...object,
+    queryTime: (endTime[0] * 1000) + (endTime[1] / 1e+6),
+  };
+};
+
+// Sorts games by time
+const sortGames = function sortGames(a, b) {
+  const [gameA, gameB] = [a, b].map((game) => {
+    const timeElapsed = game.status
+      ? ((game.status.quarter - 1) * 420) + (420 - game.status.clock)
+      : 1680;
+    return {
+      timeElapsed: game.live ? timeElapsed : 1680,
+      lastUpdate: game.endTime,
+    };
+  });
+  if (gameA.timeElapsed === gameB.timeElapsed) {
+    return gameB.lastUpdate - gameA.lastUpdate;
+  }
+  if (gameA.timeElapsed === 1680) {
+    return 1;
+  }
+  if (gameB.timeElapsed === 1680) {
+    return -1;
+  }
+  return gameB.timeElapsed - gameA.timeElapsed;
+};
+
+/**
  * Route for /games/:seasonNo?/:weekNo?/:confName?/
  * @param {import('express').Request} req The request.
  * @param {import('express').Response} res The response.
  */
 const gamesRoute = async function gamesRoute(req, res) {
   const { seasonNo, weekNo, confName } = req.params;
+  const startTime = process.hrtime();
 
   // If a season number was given
   if (seasonNo) {
     const season = await Season.findOne({ seasonNo }).lean();
     if (!season) {
-      return res.send({ error: 'Season not found.' });
+      return res.send(outputWithHrtime({ error: 'Season not found.' }, startTime));
     }
     if (weekNo) {
       const week = await Week.findOne({ season: season._id, weekNo });
       if (!week) {
-        return res.send({ error: 'Week not found.' });
+        return res.send(outputWithHrtime({ error: 'Week not found.' }, startTime));
       }
       week.games = await week.getSortedGames();
       if (confName) {
         const conf = await Conference.findOne({ shortName: decodeURI(confName) }).lean();
         if (!conf) {
-          return res.send({ error: 'Conference not found.' });
+          return res.send(outputWithHrtime({ error: 'Conference not found.' }, startTime));
         }
         week.games = week.games.filter((game) => {
           const homeDiv = game.homeTeam.team.division[seasonNo - 1];
@@ -53,31 +90,71 @@ const gamesRoute = async function gamesRoute(req, res) {
           return (awayConf === confName || homeConf === confName);
         });
       }
-      return res.send(week);
+      return res.send(outputWithHrtime(week._doc, startTime));
     }
 
     // No week was given
-    const seasonWeeks = await Week.find({ season: season._id });
-    const sortedWeekFetches = [];
-    for (let i = 0; i < seasonWeeks.length; i += 1) {
-      sortedWeekFetches.push(seasonWeeks[i].getSortedGames());
-    }
-    const sortedWeekGames = await Promise.all(sortedWeekFetches);
-    let seasonGames = [];
-    for (let i = 0; i < sortedWeekGames.length; i += 1) {
-      const filteredGames = sortedWeekGames[i].filter((game) => !game.live);
-      seasonGames = seasonGames.concat(filteredGames);
-    }
-    return res.send({
-      ...season,
-      seasonGames,
+    const teams = await Team.find().lean().populate({
+      path: 'division',
+      select: '-_id',
+      populate: {
+        path: 'conference',
+        select: 'name shortName -_id',
+      },
     });
+    const coaches = await Coach.find().lean();
+    // Get all the games for each week
+    const seasonWeeks = await Week.find({ season: season._id })
+      .lean()
+      .populate('games');
+    const weeksGames = seasonWeeks.map(
+      (seasonWeek) => seasonWeek.games.sort(sortGames).map((game) => {
+        const populatedGame = game;
+        let foundHome = false;
+        let foundAway = false;
+        // Populate teams
+        for (let i = 0; i < teams.length; i += 1) {
+          const team = teams[i];
+          if (team._id.equals(game.homeTeam.team)) {
+            populatedGame.homeTeam.team = team;
+            foundHome = true;
+          } else if (team._id.equals(game.awayTeam.team)) {
+            populatedGame.awayTeam.team = team;
+            foundAway = true;
+          }
+          if (foundHome && foundAway) {
+            break;
+          }
+        }
+        // Populate coaches
+        for (let i = 0; i < coaches.length; i += 1) {
+          const coach = coaches[i];
+          for (let j = 0; j < game.homeTeam.coaches.length; j += 1) {
+            const homeCoach = game.homeTeam.coaches[j];
+            if (coach._id.equals(homeCoach.coach)) {
+              homeCoach.coach = coach;
+            }
+          }
+          for (let j = 0; j < game.awayTeam.coaches.length; j += 1) {
+            const awayCoach = game.awayTeam.coaches[j];
+            if (coach._id.equals(awayCoach.coach)) {
+              awayCoach.coach = coach;
+            }
+          }
+        }
+        return populatedGame;
+      }),
+    );
+    return res.send(outputWithHrtime({
+      ...season,
+      seasonGames: weeksGames.flat(),
+    }, startTime));
   }
 
   // No season was given
   const games = await Game.find().lean();
   games.sort((a, b) => a.startTime - b.startTime);
-  return res.send(games);
+  return res.send(outputWithHrtime({ games }, startTime));
 };
 
 /**
