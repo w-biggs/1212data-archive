@@ -45,7 +45,7 @@ teamMetricsSchema.methods.getCurrentElo = function getCurrentElo() {
 };
 
 teamMetricsSchema.statics.getRanges = async function getRanges() {
-  const start = process.hrtime();
+  // const start = process.hrtime();
   const fetches = [];
   fetches.push(
     Season.find().lean()
@@ -66,8 +66,8 @@ teamMetricsSchema.statics.getRanges = async function getRanges() {
       .exec(),
   );
   const [seasons, metrics] = await Promise.all(fetches);
-  const mid = process.hrtime(start);
-  const midStart = process.hrtime();
+  // const mid = process.hrtime(start);
+  // const midStart = process.hrtime();
   const ranges = seasons.map(season => ({
     seasonNo: season.seasonNo,
     weeks: [{
@@ -107,9 +107,9 @@ teamMetricsSchema.statics.getRanges = async function getRanges() {
       }
     }
   }
-  const end = process.hrtime(midStart);
-  console.log(`${mid[0]}s ${mid[1] / 1e6}ms`);
-  console.log(`${end[0]}s ${end[1] / 1e6}ms`);
+  // const end = process.hrtime(midStart);
+  // console.log(`${mid[0]}s ${mid[1] / 1e6}ms`);
+  // console.log(`${end[0]}s ${end[1] / 1e6}ms`);
   return ranges;
 };
 
