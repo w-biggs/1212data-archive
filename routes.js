@@ -55,6 +55,71 @@ const sortGames = function sortGames(a, b) {
 };
 
 /**
+ * Get all games from a given season, populated with info.
+ * @param {Number} seasonNo The season number to get games for.
+ * @param {Number} maxWeekNo The maximum week to get games for.
+ */
+const getPopulatedSeasonGames = async function getPopulatedSeasonGames(seasonNo, maxWeekNo) {
+  const season = await Season.findOne({ seasonNo }).lean();
+  const teams = await Team.find().lean().populate({
+    path: 'division',
+    select: '-_id',
+    populate: {
+      path: 'conference',
+      select: 'name shortName -_id',
+    },
+  });
+  const coaches = await Coach.find().lean();
+  // Get all the games for each week
+  const weekQuery = { season: season._id };
+  if (maxWeekNo) {
+    weekQuery.weekNo = { $lte: maxWeekNo };
+  }
+  const seasonWeeks = await Week.find(weekQuery)
+    .lean()
+    .populate('games');
+  const weeksGames = seasonWeeks.map(
+    (seasonWeek) => seasonWeek.games.sort(sortGames).map((game) => {
+      const populatedGame = game;
+      let foundHome = false;
+      let foundAway = false;
+      // Populate teams
+      for (let i = 0; i < teams.length; i += 1) {
+        const team = teams[i];
+        if (team._id.equals(game.homeTeam.team)) {
+          populatedGame.homeTeam.team = team;
+          foundHome = true;
+        } else if (team._id.equals(game.awayTeam.team)) {
+          populatedGame.awayTeam.team = team;
+          foundAway = true;
+        }
+        if (foundHome && foundAway) {
+          break;
+        }
+      }
+      // Populate coaches
+      for (let i = 0; i < coaches.length; i += 1) {
+        const coach = coaches[i];
+        for (let j = 0; j < game.homeTeam.coaches.length; j += 1) {
+          const homeCoach = game.homeTeam.coaches[j];
+          if (coach._id.equals(homeCoach.coach)) {
+            homeCoach.coach = coach;
+          }
+        }
+        for (let j = 0; j < game.awayTeam.coaches.length; j += 1) {
+          const awayCoach = game.awayTeam.coaches[j];
+          if (coach._id.equals(awayCoach.coach)) {
+            awayCoach.coach = coach;
+          }
+        }
+      }
+      return populatedGame;
+    }),
+  );
+  return weeksGames.flat();
+};
+
+/**
  * Route for /games/:seasonNo?/:weekNo?/:confName?/
  * @param {import('express').Request} req The request.
  * @param {import('express').Response} res The response.
@@ -94,60 +159,10 @@ const gamesRoute = async function gamesRoute(req, res) {
     }
 
     // No week was given
-    const teams = await Team.find().lean().populate({
-      path: 'division',
-      select: '-_id',
-      populate: {
-        path: 'conference',
-        select: 'name shortName -_id',
-      },
-    });
-    const coaches = await Coach.find().lean();
-    // Get all the games for each week
-    const seasonWeeks = await Week.find({ season: season._id })
-      .lean()
-      .populate('games');
-    const weeksGames = seasonWeeks.map(
-      (seasonWeek) => seasonWeek.games.sort(sortGames).map((game) => {
-        const populatedGame = game;
-        let foundHome = false;
-        let foundAway = false;
-        // Populate teams
-        for (let i = 0; i < teams.length; i += 1) {
-          const team = teams[i];
-          if (team._id.equals(game.homeTeam.team)) {
-            populatedGame.homeTeam.team = team;
-            foundHome = true;
-          } else if (team._id.equals(game.awayTeam.team)) {
-            populatedGame.awayTeam.team = team;
-            foundAway = true;
-          }
-          if (foundHome && foundAway) {
-            break;
-          }
-        }
-        // Populate coaches
-        for (let i = 0; i < coaches.length; i += 1) {
-          const coach = coaches[i];
-          for (let j = 0; j < game.homeTeam.coaches.length; j += 1) {
-            const homeCoach = game.homeTeam.coaches[j];
-            if (coach._id.equals(homeCoach.coach)) {
-              homeCoach.coach = coach;
-            }
-          }
-          for (let j = 0; j < game.awayTeam.coaches.length; j += 1) {
-            const awayCoach = game.awayTeam.coaches[j];
-            if (coach._id.equals(awayCoach.coach)) {
-              awayCoach.coach = coach;
-            }
-          }
-        }
-        return populatedGame;
-      }),
-    );
+    const seasonGames = await getPopulatedSeasonGames(seasonNo);
     return res.send(outputWithHrtime({
       ...season,
-      seasonGames: weeksGames.flat(),
+      seasonGames,
     }, startTime));
   }
 
@@ -207,40 +222,31 @@ const standingsRoute = async function standingsRoute(currentSeasonNo, req, res) 
  */
 const statsRoute = async function statsRoute(req, res) {
   const { seasonNo } = req.params;
-  const season = await Season.findOne({ seasonNo });
-  const seasonWeeks = await Week.find({ season: season._id, weekNo: { $lte: 13 } });
-  const sortedWeekFetches = [];
-  for (let i = 0; i < seasonWeeks.length; i += 1) {
-    sortedWeekFetches.push(seasonWeeks[i].getSortedGames());
-  }
-  const sortedWeekGames = await Promise.all(sortedWeekFetches);
+  const games = await getPopulatedSeasonGames(seasonNo, 13);
   // Iterate thru games and get stats
   const teamsStats = [];
-  for (let i = 0; i < sortedWeekGames.length; i += 1) {
-    const games = sortedWeekGames[i];
-    for (let j = 0; j < games.length; j += 1) {
-      const game = games[j];
-      if (!game.live) {
-        const homeTeamIndex = teamsStats.findIndex((team) => team.name === game.homeTeam.team.name);
-        if (homeTeamIndex < 0) {
-          const teamStats = new TeamStats(game.homeTeam.team.name);
-          teamStats.addGame(game.homeTeam.stats, game.awayTeam.stats, game.awayTeam.team.name);
-          teamsStats.push(teamStats);
-        } else {
-          teamsStats[homeTeamIndex].addGame(
-            game.homeTeam.stats, game.awayTeam.stats, game.awayTeam.team.name,
-          );
-        }
-        const awayTeamIndex = teamsStats.findIndex((team) => team.name === game.awayTeam.team.name);
-        if (awayTeamIndex < 0) {
-          const teamStats = new TeamStats(game.awayTeam.team.name);
-          teamStats.addGame(game.awayTeam.stats, game.homeTeam.stats, game.homeTeam.team.name);
-          teamsStats.push(teamStats);
-        } else {
-          teamsStats[awayTeamIndex].addGame(
-            game.awayTeam.stats, game.homeTeam.stats, game.homeTeam.team.name,
-          );
-        }
+  for (let j = 0; j < games.length; j += 1) {
+    const game = games[j];
+    if (!game.live) {
+      const homeTeamIndex = teamsStats.findIndex((team) => team.name === game.homeTeam.team.name);
+      if (homeTeamIndex < 0) {
+        const teamStats = new TeamStats(game.homeTeam.team.name);
+        teamStats.addGame(game.homeTeam.stats, game.awayTeam.stats, game.awayTeam.team.name);
+        teamsStats.push(teamStats);
+      } else {
+        teamsStats[homeTeamIndex].addGame(
+          game.homeTeam.stats, game.awayTeam.stats, game.awayTeam.team.name,
+        );
+      }
+      const awayTeamIndex = teamsStats.findIndex((team) => team.name === game.awayTeam.team.name);
+      if (awayTeamIndex < 0) {
+        const teamStats = new TeamStats(game.awayTeam.team.name);
+        teamStats.addGame(game.awayTeam.stats, game.homeTeam.stats, game.homeTeam.team.name);
+        teamsStats.push(teamStats);
+      } else {
+        teamsStats[awayTeamIndex].addGame(
+          game.awayTeam.stats, game.homeTeam.stats, game.homeTeam.team.name,
+        );
       }
     }
   }
