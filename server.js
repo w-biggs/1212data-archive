@@ -6,9 +6,9 @@ const Season = require('./models/schedules/season.model');
 const Week = require('./models/schedules/week.model');
 const weekGames = require('./weekGames.json');
 const { addGame } = require('./tasks/addGame');
+const deleteGame = require('./tasks/deleteGame');
 const fetchGameInfo = require('./tasks/fetchGameInfo');
 const updateGames = require('./tasks/updateGames');
-const Game = require('./models/schedules/game.model');
 const setupRoutes = require('./routes');
 // const addOldGames = require('./old_data/oldGames');
 // const checkModifiedGames = require('./old_data/checkModifiedGames');
@@ -48,10 +48,10 @@ mongoose.connect('mongodb://127.0.0.1:27017/1212', {
           const gamePos = weekGames.games.indexOf(currentGame.gameId);
           if (gamePos < 0) {
             console.log(`${currentGame.gameId} no longer in weekGames, deleting.`);
+            mongoose.set('debug', true);
             // eslint-disable-next-line no-await-in-loop
-            await Game.deleteOne({ _id: currentGame._id });
-            // eslint-disable-next-line no-await-in-loop
-            await Week.updateOne({ _id: currentWeek._id }, { $pull: { games: currentGame._id } });
+            await deleteGame(currentGame.gameId);
+            mongoose.set('debug', false);
           } else {
             // Game already exists
             weekGames.games.splice(gamePos, 1);

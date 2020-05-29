@@ -13,8 +13,7 @@
     "dumpRestore": "mongorestore --drop --gzip --db 1212 dump/1212",
     "start": "node server.js",
     "metrics": "node metrics/updateMetrics.js",
-    "forfeit": "node tasks/forfeitGame.js",
-    "delete": "node tasks/deleteGame.js"
+    "forfeit": "node tasks/forfeitGame.js"
   },
   "dependencies": {
     "bent": "^7.1.2",

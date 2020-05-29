@@ -1,9 +1,8 @@
-const mongoose = require('mongoose');
 const Game = require('../models/schedules/game.model');
 const TeamMetrics = require('../models/teamMetrics.model');
 const CoachMetrics = require('../models/coachMetrics.model');
 
-const args = process.argv.slice(2);
+// const args = process.argv.slice(2);
 
 const deleteMetricsGame = async function deleteMetricsGame(gameRef, teamRef) {
   const metrics = await TeamMetrics.findOne({ team: teamRef }).exec();
@@ -76,9 +75,7 @@ const deleteGame = async function deleteGame(gameId) {
   return Game.deleteOne({ gameId }).exec();
 };
 
-mongoose.set('debug', true);
-
-mongoose.connect('mongodb://127.0.0.1:27017/1212', {
+/* mongoose.connect('mongodb://127.0.0.1:27017/1212', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
   useCreateIndex: true,
@@ -86,4 +83,6 @@ mongoose.connect('mongodb://127.0.0.1:27017/1212', {
   .catch(console.error)
   .then(() => deleteGame(...args))
   .then(() => mongoose.disconnect())
-  .catch(console.error);
+  .catch(console.error); */
+
+module.exports = deleteGame;
