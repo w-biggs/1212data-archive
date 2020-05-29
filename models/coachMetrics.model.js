@@ -72,6 +72,9 @@ coachMetricsSchema.statics.getRanges = async function getRanges() {
       );
       if (metricsWeek) {
         const latestGame = metricsWeek.games[metricsWeek.games.length - 1];
+        if (!latestGame) {
+          console.log(singleMetrics);
+        }
         rollingElo = latestGame.elo.elo;
       }
       if (rollingElo < week.min) {
