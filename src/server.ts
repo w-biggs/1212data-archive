@@ -80,6 +80,6 @@ mongoose.connect('mongodb://127.0.0.1:27017/1212', {
 
       updateGames(weekGames.seasonNo, weekGames.weekNo, true);
 
-      setInterval(updateGames, 60000, weekGames.seasonNo, weekGames.weekNo);
+      setInterval(() => { updateGames(weekGames.seasonNo, weekGames.weekNo); }, 60000);
     });
   });
