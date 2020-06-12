@@ -1,14 +1,14 @@
-const express = require('express');
-const mongoose = require('mongoose');
-const compression = require('compression');
-const Season = require('./models/schedules/season.model');
-const Week = require('./models/schedules/week.model');
-const weekGames = require('./weekGames.json');
-const { addGame } = require('./tasks/addGame');
-const deleteGame = require('./tasks/deleteGame');
-const fetchGameInfo = require('./tasks/fetchGameInfo');
-const updateGames = require('./tasks/updateGames');
-const setupRoutes = require('./routes');
+import express from 'express';
+import mongoose from 'mongoose';
+import compression from 'compression';
+import Season from './models/schedules/season.model';
+import Week from './models/schedules/week.model';
+import weekGames from './weekGames.json';
+import { addGame } from './tasks/addGame';
+import deleteGame from './tasks/deleteGame';
+import fetchGameInfo from './tasks/fetchGameInfo';
+import updateGames from './tasks/updateGames';
+import setupRoutes from './routes';
 
 /* Connect to MongoDB */
 mongoose.connect('mongodb://127.0.0.1:27017/1212', {
@@ -63,9 +63,9 @@ mongoose.connect('mongodb://127.0.0.1:27017/1212', {
 
     app.use((req, res, next) => {
       const origins = ['http://localhost:3000', 'http://localhost:3000/', 'https://1212.one', 'https://1212.one/'];
-      console.log(`Origin: ${req.headers.origin}, IP: ${req.headers['x-forwarded-for']}, Path: ${req.path}`);
-      if (origins.indexOf(req.headers.origin) >= 0) {
-        res.header('Access-Control-Allow-Origin', req.headers.origin);
+      console.log(`Origin: ${req.get('origin')}, IP: ${req.headers['x-forwarded-for']}, Path: ${req.path}`);
+      if (origins.indexOf(req.get('origin')) >= 0) {
+        res.header('Access-Control-Allow-Origin', req.get('origin'));
       }
       return next();
     });

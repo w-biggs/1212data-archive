@@ -1,6 +1,11 @@
-const mongoose = require('mongoose');
+import mongoose, { Schema, Document } from 'mongoose';
 
-const { Schema } = mongoose;
+export interface IWeek extends Document {
+  weekNo: Number,
+  weekName: String,
+  season: Document['_id'],
+  games: [ Document['_id'] ]
+}
 
 const weekSchema = new Schema({
   weekNo: {
@@ -83,4 +88,4 @@ weekSchema.methods.getSortedGames = function getSortedGames() {
     });
 };
 
-module.exports = mongoose.model('Week', weekSchema);
+export default mongoose.model<IWeek>('Week', weekSchema);
