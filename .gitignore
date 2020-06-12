@@ -7,3 +7,4 @@ weekGames.json
 analysis/
 .idea/
 yarn-error.log
+dist/

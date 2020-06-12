@@ -7,13 +7,13 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "push": "rsync -rzh --exclude 'node_modules/' --info=progress2 --no-inc-recursive --delete ./ server:/srv/1212data",
+    "push": "rsync -rzh --exclude 'node_modules/' --info=progress2 --no-inc-recursive --delete ./dist/ server:/srv/1212data",
     "dumpPush": "rm -r dump/ && mongodump --db 1212 --gzip && rsync -rzh --exclude 'node_modules/' --info=progress2 --no-inc-recursive --delete ./ server:/srv/1212data",
     "dumpGet": "rsync -rzh --info=progress2 --no-inc-recursive --delete server:/srv/1212data/dump ./",
     "dumpRestore": "mongorestore --drop --gzip --db 1212 dump/1212",
     "start": "node server.js",
-    "metrics": "node metrics/updateMetrics.js",
-    "forfeit": "node tasks/forfeitGame.js"
+    "metrics": "node dist/metrics/updateMetrics.js",
+    "forfeit": "node dist/tasks/forfeitGame.js"
   },
   "dependencies": {
     "bent": "^7.1.2",
@@ -26,9 +26,13 @@
     "@types/compression": "^1.7.0",
     "@types/express": "^4.17.6",
     "@types/mongoose": "^5.7.13",
+    "@typescript-eslint/eslint-plugin": "^3.2.0",
+    "@typescript-eslint/parser": "^3.2.0",
     "eslint": "^6.8.0",
     "eslint-config-airbnb": "^18.1.0",
     "eslint-config-airbnb-base": "^14.1.0",
-    "eslint-plugin-import": "^2.20.2"
+    "eslint-config-airbnb-typescript": "^8.0.2",
+    "eslint-plugin-import": "^2.20.2",
+    "typescript": "^3.9.5"
   }
 }

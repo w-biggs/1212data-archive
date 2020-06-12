@@ -1,6 +1,10 @@
 {
+  "parser": "@typescript-eslint/parser",
+  "plugins": [
+    "@typescript-eslint"
+  ],
   "extends": [
-    "airbnb-base"
+    "airbnb-typescript/base"
   ],
   "env": {
     "node": true
@@ -14,5 +18,8 @@
         "allow": ["_id", "_doc"] // Mongoose uses _id and _doc
       }
     ]
+  },
+  "parserOptions": {
+    "project": "./tsconfig.json"
   }
 }
