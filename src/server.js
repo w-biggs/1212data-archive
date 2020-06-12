@@ -1,7 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const compression = require('compression');
-const fs = require('fs');
 const Season = require('./models/schedules/season.model');
 const Week = require('./models/schedules/week.model');
 const weekGames = require('./weekGames.json');
@@ -10,19 +9,6 @@ const deleteGame = require('./tasks/deleteGame');
 const fetchGameInfo = require('./tasks/fetchGameInfo');
 const updateGames = require('./tasks/updateGames');
 const setupRoutes = require('./routes');
-// const addOldGames = require('./old_data/oldGames');
-// const checkModifiedGames = require('./old_data/checkModifiedGames');
-
-// eslint-disable-next-line no-unused-vars
-const writeDebug = function writeDebug(data) {
-  fs.writeFile('debug.json', JSON.stringify(data, null, 2), (err) => {
-    if (err) {
-      console.error(err);
-    } else {
-      console.log('Successfully wrote debug.json.');
-    }
-  });
-};
 
 /* Connect to MongoDB */
 mongoose.connect('mongodb://127.0.0.1:27017/1212', {
