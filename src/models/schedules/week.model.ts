@@ -1,10 +1,11 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Query, Schema, Document } from 'mongoose';
 
 export interface IWeek extends Document {
   weekNo: Number,
   weekName: String,
   season: Document['_id'],
-  games: [ Document['_id'] ]
+  games: [ Document['_id'] ],
+  getSortedGames(): Query<Pick<Document, '_id'>>,
 }
 
 const weekSchema = new Schema({
