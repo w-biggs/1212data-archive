@@ -1,12 +1,6 @@
-import mongoose, { Query, Schema, Document } from 'mongoose';
+const mongoose = require('mongoose');
 
-export interface IWeek extends Document {
-  weekNo: Number,
-  weekName: String,
-  season: Document['_id'],
-  games: [ Document['_id'] ],
-  getSortedGames(): Query<Pick<Document, '_id'>>,
-}
+const { Schema } = mongoose;
 
 const weekSchema = new Schema({
   weekNo: {
@@ -89,4 +83,4 @@ weekSchema.methods.getSortedGames = function getSortedGames() {
     });
 };
 
-export default mongoose.model<IWeek>('Week', weekSchema);
+module.exports = mongoose.model('Week', weekSchema);
