@@ -7,8 +7,10 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "push": "rsync -rzh --exclude 'node_modules/' --info=progress2 --no-inc-recursive --delete ./dist/ server:/srv/1212data",
-    "dumpPush": "rm -r dump/ && mongodump --db 1212 --gzip && rsync -rzh --exclude 'node_modules/' --info=progress2 --no-inc-recursive --delete ./ server:/srv/1212data",
+    "buildPush": "tsc && yarn push",
+    "push": "rsync -rzh --exclude 'node_modules/' --exclude 'src/' --info=progress2 --no-inc-recursive --delete ./ server:/srv/1212data",
+    "dump": "rm -r dump/ && mongodump --db 1212 --gzip",
+    "dumpPush": "yarn dump && yarn push",
     "dumpGet": "rsync -rzh --info=progress2 --no-inc-recursive --delete server:/srv/1212data/dump ./",
     "dumpRestore": "mongorestore --drop --gzip --db 1212 dump/1212",
     "start": "node dist/server.js",
