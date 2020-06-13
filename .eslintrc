@@ -17,7 +17,8 @@
       {
         "allow": ["_id", "_doc"] // Mongoose uses _id and _doc
       }
-    ]
+    ],
+    "import/extensions": 0
   },
   "parserOptions": {
     "project": "./tsconfig.json"
