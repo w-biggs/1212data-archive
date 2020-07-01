@@ -141,7 +141,7 @@ const doTeamIDs = async function getTeamIDs(teams) {
 const writeGames = function writeGamesToFile(games) {
   return new Promise((resolve, reject) => {
     fs.writeFile(
-      './weekGames.json',
+      `${__dirname}/weekGames.json`,
       JSON.stringify(games, null, 2),
       (writeErr) => {
         if (writeErr) {
