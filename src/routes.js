@@ -431,14 +431,14 @@ const coachPlaysRoute = async function coachPlaysRoute(req, res) {
       select: 'username',
     }, {
       path: 'game',
-      select: 'gameId startTime',
+      select: 'gameId startTime endTime',
     }]);
   for (let i = 0; i < plays.length; i += 1) {
     plays[i].coachIsOffense = (plays[i].offense.coach.username === username);
   }
   const filteredPlays = plays.filter((play) => play.game !== null);
   filteredPlays.sort((a, b) => {
-    const gameComparison = a.game.startTime - b.game.startTime;
+    const gameComparison = a.game.endTime - b.game.endTime;
     if (gameComparison !== 0) {
       return gameComparison;
     }
