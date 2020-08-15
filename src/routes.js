@@ -381,7 +381,78 @@ const coachMetricsRoute = async function coachMetricsRoute(req, res) {
       const latestWeek = coachMetric.weeks[coachMetric.weeks.length - 1];
       if (latestWeek) {
         const latestGame = latestWeek.games[latestWeek.games.length - 1];
-        csv.push([coachMetric.coach.username, latestGame.elo.elo]);
+        const primary = {
+          w: 0,
+          l: 0,
+          t: 0,
+        };
+        const all = {
+          w: 0,
+          l: 0,
+          t: 0,
+        };
+        for (let j = 0; j < coachMetric.weeks.length; j += 1) {
+          const week = coachMetric.weeks[j];
+          for (let k = 0; k < week.games.length; k += 1) {
+            const { game } = week.games[k];
+            if (game.gameId) {
+              let isHome = false;
+              let totalPlays = 0;
+              let coachPlays = 0;
+              let result = 0;
+              for (let l = 0; l < game.homeTeam.coaches.length; l += 1) {
+                const homeCoach = game.homeTeam.coaches[l];
+                totalPlays += homeCoach.plays;
+                if (homeCoach.coach.username === coachMetric.coach.username) {
+                  isHome = true;
+                  coachPlays = homeCoach.plays;
+                }
+              }
+  
+              if (isHome) {
+                result = game.homeTeam.stats.score.final - game.awayTeam.stats.score.final;
+              } else {
+                totalPlays = 0;
+                for (let l = 0; l < game.awayTeam.coaches.length; l += 1) {
+                  const awayCoach = game.awayTeam.coaches[l];
+                  totalPlays += awayCoach.plays;
+                  if (awayCoach.coach.username === coachMetric.coach.username) {
+                    coachPlays = awayCoach.plays;
+                  }
+                }
+                result = game.awayTeam.stats.score.final - game.homeTeam.stats.score.final;
+              }
+  
+              if (result > 0) {
+                all.w += 1;
+              } else if (result < 0) {
+                all.l += 1;
+              } else {
+                all.t += 1;
+              }
+  
+              if (coachPlays > (totalPlays / 2)) {
+                if (result > 0) {
+                  primary.w += 1;
+                } else if (result < 0) {
+                  primary.l += 1;
+                } else {
+                  primary.t += 1;
+                }
+              }
+            }
+          }
+        }
+        csv.push([
+          coachMetric.coach.username,
+          latestGame.elo.elo,
+          primary.w,
+          primary.l,
+          primary.t,
+          all.w,
+          all.l,
+          all.t,
+        ]);
       }
     }
     res.send(csv.map((row) => row.join(',')).join('\n'));
