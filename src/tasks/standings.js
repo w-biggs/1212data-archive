@@ -389,6 +389,18 @@ const compileStandings = async function compileStandings(seasonNo) {
         conference.divisions[j].teams.sort(sortDivision(season));
       }
     }
+    // Fix ordering of north/south, east/west, etc
+    conference.divisions.sort((a, b) => {
+      let aComp = a.name;
+      let bComp = b.name;
+      if (aComp === 'EAST' || aComp === 'NORTH') {
+        return -1;
+      }
+      if (aComp === 'WEST' || aComp === 'SOUTH') {
+        return 1;
+      }
+      return aComp.localeCompare(bComp);
+    });
   }
   // Alphabetize
   return conferences.sort((a, b) => a.name.localeCompare(b.name));
