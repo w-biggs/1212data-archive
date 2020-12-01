@@ -225,35 +225,45 @@ const statsRoute = async function statsRoute(req, res) {
   const games = await getPopulatedSeasonGames(seasonNo, 13);
   // Iterate thru games and get stats
   const teamsStats = [];
-  for (let j = 0; j < games.length; j += 1) {
-    const game = games[j];
-    if (!game.live) {
-      const homeTeamIndex = teamsStats.findIndex((team) => team.name === game.homeTeam.team.name);
-      if (homeTeamIndex < 0) {
-        const teamStats = new TeamStats(game.homeTeam.team.name);
-        teamStats.addGame(game.homeTeam.stats, game.awayTeam.stats, game.awayTeam.team.name);
-        teamsStats.push(teamStats);
-      } else {
-        teamsStats[homeTeamIndex].addGame(
-          game.homeTeam.stats, game.awayTeam.stats, game.awayTeam.team.name,
-        );
-      }
-      const awayTeamIndex = teamsStats.findIndex((team) => team.name === game.awayTeam.team.name);
-      if (awayTeamIndex < 0) {
-        const teamStats = new TeamStats(game.awayTeam.team.name);
-        teamStats.addGame(game.awayTeam.stats, game.homeTeam.stats, game.homeTeam.team.name);
-        teamsStats.push(teamStats);
-      } else {
-        teamsStats[awayTeamIndex].addGame(
-          game.awayTeam.stats, game.homeTeam.stats, game.homeTeam.team.name,
-        );
+  if (!games.length) {
+    // Add empty teams
+    const teams = await Team.find().lean().select('name');
+    for (let i = 0; i < teams.length; i += 1) {
+      const team = teams[i];
+      const teamStats = new TeamStats(team.name);
+      teamsStats.push(teamStats);
+    }
+  } else {
+    for (let j = 0; j < games.length; j += 1) {
+      const game = games[j];
+      if (!game.live) {
+        const homeTeamIndex = teamsStats.findIndex((team) => team.name === game.homeTeam.team.name);
+        if (homeTeamIndex < 0) {
+          const teamStats = new TeamStats(game.homeTeam.team.name);
+          teamStats.addGame(game.homeTeam.stats, game.awayTeam.stats, game.awayTeam.team.name);
+          teamsStats.push(teamStats);
+        } else {
+          teamsStats[homeTeamIndex].addGame(
+            game.homeTeam.stats, game.awayTeam.stats, game.awayTeam.team.name,
+          );
+        }
+        const awayTeamIndex = teamsStats.findIndex((team) => team.name === game.awayTeam.team.name);
+        if (awayTeamIndex < 0) {
+          const teamStats = new TeamStats(game.awayTeam.team.name);
+          teamStats.addGame(game.awayTeam.stats, game.homeTeam.stats, game.homeTeam.team.name);
+          teamsStats.push(teamStats);
+        } else {
+          teamsStats[awayTeamIndex].addGame(
+            game.awayTeam.stats, game.homeTeam.stats, game.homeTeam.team.name,
+          );
+        }
       }
     }
-  }
-  // SoS
-  for (let i = 0; i < teamsStats.length; i += 1) {
-    const teamStats = teamsStats[i];
-    teamStats.calcSOS(teamsStats);
+    // SoS
+    for (let i = 0; i < teamsStats.length; i += 1) {
+      const teamStats = teamsStats[i];
+      teamStats.calcSOS(teamsStats);
+    }
   }
   teamsStats.sort((a, b) => a.name.localeCompare(b.name));
   res.send(teamsStats);
