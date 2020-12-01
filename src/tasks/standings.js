@@ -391,8 +391,8 @@ const compileStandings = async function compileStandings(seasonNo) {
     }
     // Fix ordering of north/south, east/west, etc
     conference.divisions.sort((a, b) => {
-      let aComp = a.name;
-      let bComp = b.name;
+      const aComp = a.name;
+      const bComp = b.name;
       if (aComp === 'EAST' || aComp === 'NORTH') {
         return -1;
       }
