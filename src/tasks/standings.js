@@ -283,7 +283,7 @@ const sortDivision = function sortDivision(season) {
  * @returns {Object[]} The filled conferences.
  */
 const fillDivisions = async function fillDivisions(conferences, seasonNo) {
-  const teams = await Team.find();
+  const teams = await Team.find().lean();
   for (let i = 0; i < conferences.length; i += 1) {
     const conference = conferences[i];
     for (let j = 0; j < conference.divisions.length; j += 1) {
