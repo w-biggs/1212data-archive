@@ -1,5 +1,6 @@
 const Conference = require('../models/teams/conference.model');
 const Season = require('../models/schedules/season.model');
+const Team = require('../models/teams/team.model');
 
 /**
  * Adds a game to the standings stats.
@@ -276,6 +277,59 @@ const sortDivision = function sortDivision(season) {
 };
 
 /**
+ * Fills the divisions with teams.
+ * @param {Object[]} conferences The conference array.
+ * @param {Number} seasonNo The season number to compile standings for.
+ * @returns {Object[]} The filled conferences.
+ */
+const fillDivisions = async function fillDivisions(conferences, seasonNo) {
+  const teams = await Team.find();
+  for (let i = 0; i < conferences.length; i += 1) {
+    const conference = conferences[i];
+    for (let j = 0; j < conference.divisions.length; j += 1) {
+      const division = conference.divisions[j];
+      division.teams = [];
+      for (let k = 0; k < teams.length; k += 1) {
+        const team = teams[k];
+        if (division._id.equals(team.division[seasonNo - 1])) {
+          division.teams.push({
+            name: team.name,
+            abbreviation: team.abbreviation,
+            overall: {
+              wins: 0,
+              losses: 0,
+              ties: 0,
+              pf: 0,
+              pa: 0,
+              streak: {
+                type: 'N/A',
+                duration: '',
+              },
+            },
+            conference: {
+              wins: 0,
+              losses: 0,
+              ties: 0,
+              pf: 0,
+              pa: 0,
+            },
+            division: {
+              wins: 0,
+              losses: 0,
+              ties: 0,
+              pf: 0,
+              pa: 0,
+            },
+          });
+        }
+      }
+    }
+  }
+  console.log('done');
+  return conferences;
+};
+
+/**
  * Compiles the standings for a given season.
  * @param {Number} seasonNo The season number to compile standings for.
  * @returns {Object[]} The standings.
@@ -284,6 +338,7 @@ const compileStandings = async function compileStandings(seasonNo) {
   let conferences = await Conference.find()
     .lean()
     .populate('divisions');
+  conferences = await fillDivisions(conferences, seasonNo);
   const season = await Season.findOne({ seasonNo })
     .lean()
     .populate({
