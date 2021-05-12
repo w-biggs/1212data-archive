@@ -21,7 +21,7 @@
     "bent": "^7.1.2",
     "compression": "^1.7.4",
     "express": "^4.17.1",
-    "mathjs": "^6.6.1",
+    "mathjs": "^7.5.1",
     "mongoose": "^5.9.4"
   },
   "devDependencies": {
